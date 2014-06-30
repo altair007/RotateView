@@ -1,5 +1,5 @@
 //
-//  YFAppDelegate.h
+//  YFRotateView.h
 //  Rotate
 //
 //  Created by   颜风 on 14-6-30.
@@ -8,8 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-@interface YFAppDelegate : UIResponder <UIApplicationDelegate>
-
-@property (retain, nonatomic) UIWindow *window;
+@interface YFRotateView : UIScrollView
 
 @end

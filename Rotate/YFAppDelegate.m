@@ -7,15 +7,32 @@
 //
 
 #import "YFAppDelegate.h"
+#import "YFRotateViewController.h"
 
 @implementation YFAppDelegate
+- (void)dealloc
+{
+    self.window = nil;
+    
+#if ! __has_feature(objc_arc)
+    [super dealloc];
+#endif
+}
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    UIWindow * window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    self.window = window;
+    Release(window);
+    
     // Override point for customization after application launch.
     self.window.backgroundColor = [UIColor whiteColor];
+    
+    YFRotateViewController * roteteViewController = [[YFRotateViewController alloc] init];
+    self.window.rootViewController = roteteViewController;
+    
     [self.window makeKeyAndVisible];
+    
     return YES;
 }
 

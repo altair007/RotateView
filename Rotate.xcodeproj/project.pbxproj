@@ -19,6 +19,8 @@
 		C2B0F1451961A5F100E872A6 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C2B0F12D1961A5F100E872A6 /* UIKit.framework */; };
 		C2B0F14D1961A5F100E872A6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = C2B0F14B1961A5F100E872A6 /* InfoPlist.strings */; };
 		C2B0F14F1961A5F100E872A6 /* RotateTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C2B0F14E1961A5F100E872A6 /* RotateTests.m */; };
+		C2B0F15A1961A83800E872A6 /* YFRotateViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C2B0F1591961A83800E872A6 /* YFRotateViewController.m */; };
+		C2B0F15D1961A96400E872A6 /* YFRotateView.m in Sources */ = {isa = PBXBuildFile; fileRef = C2B0F15C1961A96400E872A6 /* YFRotateView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -48,6 +50,10 @@
 		C2B0F14A1961A5F100E872A6 /* RotateTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "RotateTests-Info.plist"; sourceTree = "<group>"; };
 		C2B0F14C1961A5F100E872A6 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		C2B0F14E1961A5F100E872A6 /* RotateTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RotateTests.m; sourceTree = "<group>"; };
+		C2B0F1581961A83800E872A6 /* YFRotateViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YFRotateViewController.h; sourceTree = "<group>"; };
+		C2B0F1591961A83800E872A6 /* YFRotateViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YFRotateViewController.m; sourceTree = "<group>"; };
+		C2B0F15B1961A96400E872A6 /* YFRotateView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YFRotateView.h; sourceTree = "<group>"; };
+		C2B0F15C1961A96400E872A6 /* YFRotateView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YFRotateView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -111,6 +117,10 @@
 				C2B0F1391961A5F100E872A6 /* YFAppDelegate.m */,
 				C2B0F13B1961A5F100E872A6 /* Images.xcassets */,
 				C2B0F1301961A5F100E872A6 /* Supporting Files */,
+				C2B0F1581961A83800E872A6 /* YFRotateViewController.h */,
+				C2B0F1591961A83800E872A6 /* YFRotateViewController.m */,
+				C2B0F15B1961A96400E872A6 /* YFRotateView.h */,
+				C2B0F15C1961A96400E872A6 /* YFRotateView.m */,
 			);
 			path = Rotate;
 			sourceTree = "<group>";
@@ -240,7 +250,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C2B0F15A1961A83800E872A6 /* YFRotateViewController.m in Sources */,
 				C2B0F1361961A5F100E872A6 /* main.m in Sources */,
+				C2B0F15D1961A96400E872A6 /* YFRotateView.m in Sources */,
 				C2B0F13A1961A5F100E872A6 /* YFAppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -360,6 +372,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CLANG_ENABLE_OBJC_ARC = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Rotate/Rotate-Prefix.pch";
 				INFOPLIST_FILE = "Rotate/Rotate-Info.plist";
@@ -373,6 +386,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CLANG_ENABLE_OBJC_ARC = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Rotate/Rotate-Prefix.pch";
 				INFOPLIST_FILE = "Rotate/Rotate-Info.plist";
