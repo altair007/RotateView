@@ -27,7 +27,13 @@
 - (void)loadView
 {
     YFRotateView * rotateView = [[YFRotateView alloc] initWithFrame:[UIScreen mainScreen].bounds];
-    rotateView.delegate = self;// !!!: 迭代至此.
+    rotateView.delegate = self;
+    
+    UIImageView * leftView = [[UIImageView alloc] initWithImage:[UIImage imageNamed: @"001.jpg"]];
+    leftView.backgroundColor = [UIColor greenColor];
+    rotateView.initView = leftView;
+    Release(leftView);
+
     self.view = rotateView;
 }
 
@@ -67,20 +73,29 @@
     return @"0.0";
 }
 
-
-- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+// !!!: 这些逻辑应该单独封装到视图里.
+// !!!: 一个可能的思路: 检测轻扫手势,拜托对代理的依赖.同一个手势,可以有多个事件响应吗?或者显示先执行父类的的手势方法即可.?
+- (void)scrollViewDidScroll:(YFRotateView *) rotateView
 {
-    /* 计算屏幕上应该出现几张图片. */
-    // !!!: 迭代至此!
-    NSInteger m = 0;
-//    if (scrollView.contentOffset.x = scrollView.frame.size.width) {
-//        m = 1;
-//    }
-//    
-//    if (scrollView.contentOffset.x >) {
-//        <#statements#>
-//    }
+    CGFloat width = rotateView.frame.size.width; // 相册宽度.
+    CGFloat x = rotateView.contentOffset.x; // 相册偏移.
     
+    /* 计算相册上应该出现几张图片. */
+    NSInteger countShould = 1;
+    if (0 != x && width != x) {
+        countShould = 2;
+    }
+    
+    /* 屏幕上此时已经出现了几张图片. */
+    NSUInteger countVisible = [rotateView numberOfVisibleView];
+    
+    if (countShould == countVisible) { // 刚刚好.
+        return;
+    }
+    
+    if(countShould > countVisible){ // 需要增加显示另一个视图.
+    
+    }
 }
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollVie

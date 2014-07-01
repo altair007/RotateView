@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C2AD7F77196251DD00D864A2 /* 001.jpg in Resources */ = {isa = PBXBuildFile; fileRef = C2AD7F75196251DD00D864A2 /* 001.jpg */; };
+		C2AD7F78196251DD00D864A2 /* 002.jpg in Resources */ = {isa = PBXBuildFile; fileRef = C2AD7F76196251DD00D864A2 /* 002.jpg */; };
 		C2B0F12A1961A5F100E872A6 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C2B0F1291961A5F100E872A6 /* Foundation.framework */; };
 		C2B0F12C1961A5F100E872A6 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C2B0F12B1961A5F100E872A6 /* CoreGraphics.framework */; };
 		C2B0F12E1961A5F100E872A6 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C2B0F12D1961A5F100E872A6 /* UIKit.framework */; };
@@ -34,6 +36,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		C2AD7F75196251DD00D864A2 /* 001.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 001.jpg; sourceTree = "<group>"; };
+		C2AD7F76196251DD00D864A2 /* 002.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 002.jpg; sourceTree = "<group>"; };
 		C2B0F1261961A5F100E872A6 /* Rotate.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Rotate.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C2B0F1291961A5F100E872A6 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		C2B0F12B1961A5F100E872A6 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -113,6 +117,8 @@
 		C2B0F12F1961A5F100E872A6 /* Rotate */ = {
 			isa = PBXGroup;
 			children = (
+				C2AD7F75196251DD00D864A2 /* 001.jpg */,
+				C2AD7F76196251DD00D864A2 /* 002.jpg */,
 				C2B0F1381961A5F100E872A6 /* YFAppDelegate.h */,
 				C2B0F1391961A5F100E872A6 /* YFAppDelegate.m */,
 				C2B0F13B1961A5F100E872A6 /* Images.xcassets */,
@@ -230,6 +236,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C2AD7F78196251DD00D864A2 /* 002.jpg in Resources */,
+				C2AD7F77196251DD00D864A2 /* 001.jpg in Resources */,
 				C2B0F1341961A5F100E872A6 /* InfoPlist.strings in Resources */,
 				C2B0F13C1961A5F100E872A6 /* Images.xcassets in Resources */,
 			);
@@ -454,6 +462,7 @@
 				C2B0F1541961A5F100E872A6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		C2B0F1551961A5F100E872A6 /* Build configuration list for PBXNativeTarget "RotateTests" */ = {
 			isa = XCConfigurationList;
@@ -462,6 +471,7 @@
 				C2B0F1571961A5F100E872A6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
