@@ -32,7 +32,70 @@
     
     UINavigationController * navController = [[UINavigationController alloc] initWithRootViewController: roteteViewController];
     
+    
     self.window.rootViewController = navController;
+//    // 测试:
+//    UIView * view = [[UIView alloc] init];
+////    view.translatesAutoresizingMaskIntoConstraints = NO;
+//    
+//    UIView * headerView = [[UIView alloc] init];
+//    headerView.backgroundColor = [UIColor blackColor];
+////    headerView.translatesAutoresizingMaskIntoConstraints = NO;
+//    [view addSubview: headerView];
+////    headerView.translatesAutoresizingMaskIntoConstraints = NO;
+//    
+//    
+//    UIScrollView * viewContainer = [[UIScrollView alloc]init];
+//    
+//    // !!!:设置过早!
+////    viewContainer.contentSize = CGSizeMake(2 * view.frame.size.width, 0);
+//    
+//    // ???:最后设置可以吗?
+////    viewContainer.translatesAutoresizingMaskIntoConstraints = NO;
+//    
+//    
+//    // !!!:临时添加的背景色.
+//    viewContainer.backgroundColor = [UIColor greenColor];
+//    viewContainer.pagingEnabled = YES;
+//    [view addSubview: viewContainer];
+//    
+//    
+//    [view setTranslatesAutoresizingMaskIntoConstraints:NO];
+//    
+//    [viewContainer setTranslatesAutoresizingMaskIntoConstraints:NO];
+//    
+//    [headerView setTranslatesAutoresizingMaskIntoConstraints:NO];
+//    
+//    /* 使用"约束"进行界面布局. */
+//    
+//    // ???: 如何动态获取导航栏高度?
+//    // ???: 如何根据不同ios版本动态获取导航栏高度?
+//    NSNumber *  navHeight = [NSNumber numberWithFloat: 64.0]; //!< 导航栏高度.
+//    NSNumber * headerHeight = [NSNumber numberWithFloat: 20.0]; //!< 标题栏高度.
+//    
+//    NSMutableArray * constraintsArray = [NSMutableArray arrayWithCapacity: 42];
+//    // ???:可以将多个"约束" 写到一块吗?
+//    [constraintsArray addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat: @"|[headerView]|" options:0 metrics:nil views: NSDictionaryOfVariableBindings(headerView)]];
+//    [constraintsArray addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat: @"|[viewContainer]|" options:0 metrics:nil views: NSDictionaryOfVariableBindings(viewContainer)]];
+//    
+//    [constraintsArray addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat: @"V:|-navHeight-[headerView(==headerHeight)][viewContainer]|" options:0 metrics: NSDictionaryOfVariableBindings(navHeight, headerHeight) views: NSDictionaryOfVariableBindings(headerView,viewContainer)]];
+//    
+//    [view addConstraints: constraintsArray];
+//    
+////    self.headerView = headerView;
+//    Release(headerView);
+////    self.viewContainer = viewContainer;
+//    Release(viewContainer);
+//    NSArray * array = view.subviews;
+//    
+//    view.frame = CGRectMake(0, 0, 320, 568);
+//    view.backgroundColor = [UIColor redColor];
+//    [self.window addSubview:view];
+//    
+    
+    
+//    self.window.rootViewController = navController;
+    
     
     [self.window makeKeyAndVisible];
     

@@ -21,43 +21,24 @@
     self = [super initWithFrame:frame];
     if (self) {
         // Initialization code
-        self.autoresizesSubviews = YES;
+        [self setupSubviews];
     
         
-        UIView * headerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height * 0.05)];
-        headerView.backgroundColor = [UIColor blackColor];
-        self.headerView = headerView;
-        Release(headerView);
-        [self addSubview: self.headerView];
-        
-        
-        UIScrollView * viewContainer = [[UIScrollView alloc] initWithFrame: CGRectMake(0, self.headerView.frame.size.height, self.frame.size.width, self.frame.size.height - self.headerView.frame.size.height-64)];
-        viewContainer.contentSize =  CGSizeMake(2 * self.frame.size.width, 0);
-        viewContainer.backgroundColor = [UIColor greenColor];
-        viewContainer.pagingEnabled = YES;
-        // ???: 迭代至此!
-        // ???: 两个疑问:a.使用约束能否解决控制器 self.view会自动调整的影响?
-        // ???: b.能否解决已有问题:设置 bouds 值时,相册位于固定位置.
-//        [viewContainer addConstraint:<#(NSLayoutConstraint *)#>];
-        self.viewContainer = viewContainer;
-        Release(viewContainer);
-        [self addSubview: self.viewContainer];
-        
-        // !!!:测试一个方法.
-        viewContainer.autoresizingMask =     UIViewAutoresizingFlexibleTopMargin |UIViewAutoresizingFlexibleHeight;
-        
-//        UIImageView * leftView = [[UIImageView alloc] initWithFrame: CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
-//        leftView.backgroundColor = [UIColor greenColor];
-//        leftView.image = [UIImage imageNamed: @"001.jpg"];
-//        [self addSubview: leftView];
-//        Release(leftView);
+//        UIView * headerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height * 0.05)];
+//        headerView.backgroundColor = [UIColor blackColor];
+//        self.headerView = headerView;
+//        Release(headerView);
+//        [self addSubview: self.headerView];
 //        
-//        UIImageView * rightView = [[UIImageView alloc] initWithFrame: CGRectMake(self.frame.size.width, 0, self.frame.size.width, self.frame.size.height)];
-//        rightView.image = [UIImage imageNamed: @"002.jpg"];
-//        rightView.backgroundColor = [UIColor blueColor];
-//        [self addSubview: rightView];
-//        Release(rightView);
-        
+//        
+//        UIScrollView * viewContainer = [[UIScrollView alloc] initWithFrame: CGRectMake(0, self.headerView.frame.size.height, self.frame.size.width, self.frame.size.height - self.headerView.frame.size.height-64)];
+//        viewContainer.contentSize =  CGSizeMake(2 * self.frame.size.width, 0);
+//        viewContainer.backgroundColor = [UIColor greenColor];
+//        viewContainer.pagingEnabled = YES;
+////        [viewContainer addConstraint:<#(NSLayoutConstraint *)#>];
+//        self.viewContainer = viewContainer;
+//        Release(viewContainer);
+//        [self addSubview: self.viewContainer];
     }
     return self;
 }
@@ -80,6 +61,55 @@
 //{
 //    
 //}
+
+- (void) setupSubviews;
+{
+//    self.translatesAutoresizingMaskIntoConstraints = NO;
+    
+    UIView * headerView = [[UIView alloc] init];
+    headerView.backgroundColor = [UIColor blackColor];
+    headerView.translatesAutoresizingMaskIntoConstraints = NO;
+    [self addSubview: headerView];
+    headerView.translatesAutoresizingMaskIntoConstraints = NO;
+
+    
+    UIScrollView * viewContainer = [[UIScrollView alloc]init];
+    viewContainer.contentSize = CGSizeMake(2 * self.frame.size.width, 0);
+    
+    // ???:最后设置可以吗?
+    viewContainer.translatesAutoresizingMaskIntoConstraints = NO;
+
+    // !!!:临时添加的背景色.
+    viewContainer.backgroundColor = [UIColor greenColor];
+    viewContainer.pagingEnabled = YES;
+    [self addSubview: viewContainer];
+    
+    // ???: 迭代至此!  不是 必须的吗? NO,YES? 和导航栏有关吗?
+//    [viewContainer setTranslatesAutoresizingMaskIntoConstraints:NO];
+//    
+//    [headerView setTranslatesAutoresizingMaskIntoConstraints:NO];
+    
+    /* 使用"约束"进行界面布局. */
+    
+    // ???: 如何动态获取导航栏高度?
+    // ???: 如何根据不同ios版本动态获取导航栏高度?
+    NSNumber *  navHeight = [NSNumber numberWithFloat: 64.0]; //!< 导航栏高度.
+    NSNumber * headerHeight = [NSNumber numberWithFloat: 20.0]; //!< 标题栏高度.
+    
+    NSMutableArray * constraintsArray = [NSMutableArray arrayWithCapacity: 42];
+    // ???:可以将多个"约束" 写到一块吗?
+    [constraintsArray addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat: @"|[headerView]|" options:0 metrics:nil views: NSDictionaryOfVariableBindings(headerView)]];
+    [constraintsArray addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat: @"|[viewContainer]|" options:0 metrics:nil views: NSDictionaryOfVariableBindings(viewContainer)]];
+    
+    [constraintsArray addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat: @"V:|-navHeight-[headerView(==headerHeight)][viewContainer]|" options:0 metrics: NSDictionaryOfVariableBindings(navHeight, headerHeight) views: NSDictionaryOfVariableBindings(headerView,viewContainer)]];
+    
+    [self addConstraints: constraintsArray];
+    
+    self.headerView = headerView;
+    Release(headerView);
+    self.viewContainer = viewContainer;
+    Release(viewContainer);
+}
 
 # pragma mark - 协议方法
 - (void)scrollViewDidScroll:(UIScrollView *) scrollView

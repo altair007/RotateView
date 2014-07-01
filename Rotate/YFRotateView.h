@@ -52,6 +52,7 @@
 
 @end
 
+// ???: 优化目标: 使用 "约束"来布局视图.
 // ???: 通过当 frame 变化时. UIView的"Alternatives to Subclassing"动态改变视图,而不是手动去设置.
 @interface YFRotateView : UIView <UIScrollViewDelegate>
 //@property (retain, nonatomic) UIView * initView; //!< 相册初始化完成时,显示在相册上的视图.
@@ -67,6 +68,11 @@
  *  @return 相册上正在显示的图片数量.
  */
 - (NSUInteger) numberOfVisibleView;
+
+/**
+ *  初始化子视图.
+ */
+- (void) setupSubviews;
 
 @end
 

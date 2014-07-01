@@ -27,19 +27,17 @@
 - (void)loadView
 {
     YFRotateView * rotateView = [[YFRotateView alloc] initWithFrame: [UIScreen mainScreen].bounds];
-    CGRect bounds = rotateView.bounds;
-    bounds.origin.y -= 64;
-    rotateView.bounds = bounds;
     
     rotateView.delegate = self;
 
     
     UIImageView * view = [[UIImageView alloc] initWithImage:[UIImage imageNamed: @"001.jpg"]];
-    view.frame = CGRectMake(0, 0, 320, (568-64)*0.95);
+    view.frame = CGRectMake(0, 0, 320, 568);
     view.backgroundColor = [UIColor blueColor];
     [rotateView.viewContainer addSubview: view];
     
     self.view = rotateView;
+//    CGRect rect = rotateView.frame;
     Release(rotateView);
 }
 
