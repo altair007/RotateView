@@ -26,22 +26,30 @@
 
 - (void)loadView
 {
-    YFRotateView * rotateView = [[YFRotateView alloc] initWithFrame:[UIScreen mainScreen].bounds];
-    rotateView.delegate = self;
+    YFRotateView * rotateView = [[YFRotateView alloc] initWithFrame: [UIScreen mainScreen].bounds];
+    CGRect bounds = rotateView.bounds;
+    bounds.origin.y -= 64;
+    rotateView.bounds = bounds;
     
-    UIImageView * leftView = [[UIImageView alloc] initWithImage:[UIImage imageNamed: @"001.jpg"]];
-    leftView.backgroundColor = [UIColor greenColor];
-    rotateView.initView = leftView;
-    Release(leftView);
+    rotateView.delegate = self;
 
+    
+    UIImageView * view = [[UIImageView alloc] initWithImage:[UIImage imageNamed: @"001.jpg"]];
+    view.frame = CGRectMake(0, 0, 320, (568-64)*0.95);
+    view.backgroundColor = [UIColor blueColor];
+    [rotateView.viewContainer addSubview: view];
+    
     self.view = rotateView;
+    Release(rotateView);
 }
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    
+    self.navigationItem.title = @"魅影传媒";
+    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle: @"目录" style:UIBarButtonItemStylePlain target: nil action: NULL];
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle: @"登录" style:UIBarButtonItemStylePlain target:nil action: NULL];
 }
 
 - (void)didReceiveMemoryWarning
@@ -65,89 +73,26 @@
 }
 */
 
-#pragma mark - UIScrollViewAccessibilityDelegate协议方法
-// ???: 这个协议方法怎么不执行?
-- (NSString *)accessibilityScrollStatusForScrollView:(UIScrollView *)scrollView
+#pragma mark - YFRotateViewDataSource 协议方法
+- (NSInteger)numberOfCellsInRotateView:(YFRotateView *)rotateView
 {
-
-    return @"0.0";
+    return 2;
 }
 
-// !!!: 这些逻辑应该单独封装到视图里.
-// !!!: 一个可能的思路: 检测轻扫手势,拜托对代理的依赖.同一个手势,可以有多个事件响应吗?或者显示先执行父类的的手势方法即可.?
-- (void)scrollViewDidScroll:(YFRotateView *) rotateView
+/**
+ *  设置用于某个位置的单元格的视图.
+ *
+ *  @param rotateView 轮转视图对象.
+ *  @param index      单元格位置.
+ *
+ *  @return 用于某个位置的单元格的视图.
+ */
+- (UIView *)rotateView:(YFRotateView *)rotateView cellForColAtIndex:(NSUInteger) index
 {
-    CGFloat width = rotateView.frame.size.width; // 相册宽度.
-    CGFloat x = rotateView.contentOffset.x; // 相册偏移.
+    UIImageView * view = [[UIImageView alloc] initWithImage:[UIImage imageNamed: @"001.jpg"]];
+    view.frame = CGRectMake(0, 0, 320, (568-64)*0.95);
+    view.backgroundColor = [UIColor blueColor];
     
-    /* 计算相册上应该出现几张图片. */
-    NSInteger countShould = 1;
-    if (0 != x && width != x) {
-        countShould = 2;
-    }
-    
-    /* 屏幕上此时已经出现了几张图片. */
-    NSUInteger countVisible = [rotateView numberOfVisibleView];
-    
-    if (countShould == countVisible) { // 刚刚好.
-        return;
-    }
-    
-    if(countShould > countVisible){ // 需要增加显示另一个视图.
-    
-    }
-}
-
-- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollVie
-{
-    
-}
-
-- (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset NS_AVAILABLE_IOS(5_0)
-{
-    
-}
-
-- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
-{
-    
-}
-- (void)scrollViewWillBeginDecelerating:(UIScrollView *)scrollView
-{
-    
-}
-
-- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
-{
-    
-}
-
-- (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView
-{
-    
-}
-
-- (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView
-{
-    return nil;
-}
-- (void)scrollViewWillBeginZooming:(UIScrollView *)scrollView withView:(UIView *)view NS_AVAILABLE_IOS(3_2)
-{
-    
-}
-
-- (void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(UIView *)view atScale:(CGFloat)scale
-{
-    
-}
-
-- (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView
-{
-    return YES;
-}
-
-- (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView
-{
-    
+    return view;
 }
 @end

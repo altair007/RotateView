@@ -29,7 +29,10 @@
     self.window.backgroundColor = [UIColor whiteColor];
     
     YFRotateViewController * roteteViewController = [[YFRotateViewController alloc] init];
-    self.window.rootViewController = roteteViewController;
+    
+    UINavigationController * navController = [[UINavigationController alloc] initWithRootViewController: roteteViewController];
+    
+    self.window.rootViewController = navController;
     
     [self.window makeKeyAndVisible];
     
