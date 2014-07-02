@@ -12,7 +12,7 @@
 @property (retain, nonatomic) NSMutableArray * YFRVVisibleViews; //!< 存储相册上可以看到的视图.
 @property (retain, nonatomic) UIScrollView * viewContainer; //!< 用于放置视图.
 @property (retain, nonatomic) UIView * headerView; //!< 页眉用于导航.
-@property (retain, nonatomic) NSMutableArray * visibleViews; //!< 存储已经放到到视图容器上的视图.
+@property (retain, nonatomic) NSMutableDictionary * visibleViews; //!< 存储已经放到到视图容器上的视图,以视图的位置为键,以视图对象为值.
 @end
 
 @implementation YFRotateView
@@ -89,49 +89,61 @@
 {
     // ???: 此处应该有一个逻辑,决定index大于视图总数量时,是轮转,还是终止旋转.
     
+    // !!!:出现了太多不该出现的固定值.
+    
+    if (nil == self.visibleViews) { // 初始化 visibleViews 属性.
+        self.visibleViews = [NSMutableDictionary dictionaryWithCapacity: 42];
+    }
+    
     if (2 == self.visibleViews.count) { // 容器中的视图数量达到最大值,直接返回.
         return;
     }
     
-    // !!!: 验证瞬移现象是否存在.(从用户角度来说.).
-//    UIView * temp = [[UIView alloc]init];
-//    temp.translatesAutoresizingMaskIntoConstraints = NO;
-//    [self.viewContainer addSubview: temp];
-    
-    // 区分两种情况:
-    if(1 == self.visibleViews.count)
-    {
-        CGPoint point = self.viewContainer.contentOffset;
+    if(1 == self.visibleViews.count){
+        NSString * indexStr = [NSString stringWithFormat:@"%lu", index];
+        UIView * visibleView = [self.visibleViews objectForKey: indexStr];
         
-       NSArray * constraintstemp = self.viewContainer.constraints;
+        if (nil != visibleView) { // 说明此位置的视图已被设置,直接返回即可.
+            return;
+        }
+        
+        // 获取已经被设置的视图及其位置
+        visibleView = [[self.visibleViews allValues] lastObject];
+        NSUInteger indexVisible = [[[self.visibleViews allKeys] lastObject] integerValue];
+        
+        // 获取视图目前的偏移值,以供计算偏移后目标的偏移值.
+        CGPoint offsetOriginal = self.viewContainer.contentOffset;
+        
+        // 移除已有的"约束",避免冲突.
+        NSArray * constraintstemp = self.viewContainer.constraints;
         [self.viewContainer removeConstraints: constraintstemp];
-        NSArray * constraintstemp2 = self.viewContainer.constraints;
         
-        UIView * temp = [self.viewContainer.subviews objectAtIndex: 2];
-        UIView * cell = [[UIView alloc] init];
+        UIView * cell = [self.dataSource rotateView: self cellForColAtIndex: index];
         cell.backgroundColor = [UIColor redColor];
         cell.translatesAutoresizingMaskIntoConstraints = NO;
         [self.viewContainer addSubview: cell];
         
         NSMutableArray * constraintsArray = [NSMutableArray arrayWithCapacity: 42];
-        [constraintsArray addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat: @"H:|[cell(==320)][temp(==320)]|" options:0 metrics:nil views: NSDictionaryOfVariableBindings(cell,temp)]];
+        // ???: 320,478等 不应该使用固定值.
+        [constraintsArray addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat: @"H:|[cell(==320)][visibleView(==320)]|" options:0 metrics:nil views: NSDictionaryOfVariableBindings(cell,visibleView)]];
         [constraintsArray addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat: @"V:|[cell(==478)]|" options:0 metrics:nil views: NSDictionaryOfVariableBindings(cell)]];
-        [constraintsArray addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat: @"V:|[temp(==478)]|" options:0 metrics:nil views: NSDictionaryOfVariableBindings(temp)]];
-        
+        [constraintsArray addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat: @"V:|[visibleView(==478)]|" options:0 metrics:nil views: NSDictionaryOfVariableBindings(visibleView)]];
         
         [self.viewContainer addConstraints:constraintsArray];
-        NSArray * constraints = self.viewContainer.constraints;
-        [self.visibleViews addObject: cell];
-        point.x = 320 + point.x;
-        self.viewContainer.contentOffset = point;
-        point = self.viewContainer.contentOffset;
+        [self.visibleViews setObject: cell forKey:[NSString stringWithFormat:@"%lu", index]];
+        
+        // 根据是左滑还是右滑,正确设置偏移修正值,并正确调整容器偏移.
+        // ???: 猜测: 偶尔的闪图bug,可能就出现在没处理好 0.5 的误差上.尝试处理下.
+        CGFloat  adjustValue = self.viewContainer.frame.size.width; // 向左移.
+        if (indexVisible < index) { // 向右移.
+            adjustValue = - adjustValue;
+        }
+        
+        offsetOriginal.x = adjustValue + offsetOriginal.x;
+        self.viewContainer.contentOffset = offsetOriginal;
         
         return;
     }
-    
-    
-    // 需要在某个时机,更新约束!
-    // ???:如何移除指定约束?
     
     UIView * cell = [self.dataSource rotateView: self cellForColAtIndex: index];
     cell.backgroundColor = [UIColor cyanColor];
@@ -144,64 +156,16 @@
     
     [self.viewContainer addConstraints:constraintsArray];
     
-    if (nil == self.visibleViews) {
-        self.visibleViews = [NSMutableArray arrayWithCapacity: 42];
-    }
-    [self.visibleViews addObject: cell];
-    // 先获取已经存在的子视图.
-//    UIView * temp = [[UIView alloc]init];
-//        temp.translatesAutoresizingMaskIntoConstraints = NO;
-//    [self.viewContainer addSubview: temp];
-//    
-//    UIView * cell = [self.dataSource rotateView: self cellForColAtIndex: index];
-//    cell.backgroundColor = [UIColor cyanColor];
-//    cell.translatesAutoresizingMaskIntoConstraints = NO;
-//    [self.viewContainer addSubview: cell];
-//
-//    NSMutableArray * constraintsArray = [NSMutableArray arrayWithCapacity: 42];
-//    [constraintsArray addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat: @"H:|[temp(==320)][cell(==320)]|" options:0 metrics:nil views: NSDictionaryOfVariableBindings(temp,cell)]];
-//    [constraintsArray addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat: @"V:|[cell(==478)]|" options:0 metrics:nil views: NSDictionaryOfVariableBindings(cell)]];
-//    
-//    [constraintsArray addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat: @"V:|[temp(==478)]|" options:0 metrics:nil views: NSDictionaryOfVariableBindings(temp)]];
-//    
-//    [self addConstraints:constraintsArray];
-//    cell.frame = CGRectMake(self.viewContainer.frame.size.width * index, 0, 320, 400);
-//    [self.viewContainer addSubview: cell];
+    [self.visibleViews setObject: cell forKey: [NSString stringWithFormat: @"%lu", index]];
 }
 
 # pragma mark - 协议方法
 - (void)scrollViewDidScroll:(UIScrollView *) scrollView
 {
-    [self showCellAtIndex:0];
-    CGSize size = scrollView.contentSize;
-    NSLog(@"%g", size.width);
-    /* 获取视图位置. */
-    // ???: 可能需要用到取整方法.
-//    NSUInteger index = (scrollView.contentOffset.x / 320);
-//    UIView * cell = [self.dataSource rotateView: self cellForColAtIndex: index];
-//    // ???: 暂时先不用"约束"!请改用"约束".
-//    // ???: 可以用leftView和rightView,固定位置.作为cell的父视图.
-//    cell.frame = CGRectMake(scrollView.contentOffset.x, 0, scrollView.frame.size.width, scrollView.frame.size.height);
-//    [scrollView addSubview: cell];
+    // ???: 迭代至此!
+    // ???: 此处缺少一个逻辑: 计算需要显示哪个位置的图片,显示即可.
     
-//    CGFloat width = scrollView.frame.size.width; // 相册宽度.
-//    CGFloat x = scrollView.contentOffset.x; // 相册偏移.
-//    
-//    /* 计算相册上应该出现几张图片. */
-//    NSInteger countShould = 1;
-    //    if (0 != x && width != x) {
-    //        countShould = 2;
-    //    }
+    // ???: 需要向上或向下取整.
     
-    /* 屏幕上此时已经出现了几张图片. */
-//    NSUInteger countVisible = [scrollView numberOfVisibleView];
-//    
-//    if (countShould == countVisible) { // 刚刚好.
-//        return;
-//    }
-//    
-//    if(countShould > countVisible){ // 需要增加显示另一个视图.
-//        
-//    }
 }
 @end
