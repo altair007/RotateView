@@ -26,15 +26,15 @@
 
 - (void)loadView
 {
-    YFRotateView * rotateView = [[YFRotateView alloc] initWithFrame: [UIScreen mainScreen].bounds];
+    YFRotateView * rotateView = [[YFRotateView alloc] init];
     
     rotateView.delegate = self;
-
+    rotateView.dataSource = self;
     
-    UIImageView * view = [[UIImageView alloc] initWithImage:[UIImage imageNamed: @"001.jpg"]];
-    view.frame = CGRectMake(0, 0, 320, 568);
-    view.backgroundColor = [UIColor blueColor];
-    [rotateView.viewContainer addSubview: view];
+//    UIImageView * view = [[UIImageView alloc] initWithImage:[UIImage imageNamed: @"001.jpg"]];
+//    view.frame = CGRectMake(0, 0, 320, 568);
+//    view.backgroundColor = [UIColor blueColor];
+//    [rotateView.viewContainer addSubview: view];
     
     self.view = rotateView;
 //    CGRect rect = rotateView.frame;
@@ -60,37 +60,23 @@
     
 }
 
-/*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
-{
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-}
-*/
-
 #pragma mark - YFRotateViewDataSource 协议方法
 - (NSInteger)numberOfCellsInRotateView:(YFRotateView *)rotateView
 {
     return 2;
 }
 
-/**
- *  设置用于某个位置的单元格的视图.
- *
- *  @param rotateView 轮转视图对象.
- *  @param index      单元格位置.
- *
- *  @return 用于某个位置的单元格的视图.
- */
 - (UIView *)rotateView:(YFRotateView *)rotateView cellForColAtIndex:(NSUInteger) index
 {
     UIImageView * view = [[UIImageView alloc] initWithImage:[UIImage imageNamed: @"001.jpg"]];
-    view.frame = CGRectMake(0, 0, 320, (568-64)*0.95);
+    view.frame = CGRectMake(0, 0, 320, 568);
     view.backgroundColor = [UIColor blueColor];
     
     return view;
+}
+
+- (NSUInteger) indexForSetupCellInRotateView:(YFRotateView *) rotateView
+{
+    return 0;
 }
 @end
