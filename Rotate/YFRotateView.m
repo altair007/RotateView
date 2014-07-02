@@ -21,7 +21,7 @@
     self = [super initWithFrame:frame];
     if (self) {
         // Initialization code
-        [self setupSubviews];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(setupSubviews) name: UIWindowDidBecomeVisibleNotification object: nil];
     }
     return self;
 }
@@ -33,12 +33,18 @@
 
 - (void) setupSubviews;
 {
+    if (nil == self.window) {
+        return;
+    }
+    
     UIView * headerView = [[UIView alloc] init];
     headerView.backgroundColor = [UIColor blackColor];
     [self addSubview: headerView];
     
+    // ???: 迭代至此!滚动栏,无反应,或许应该检测另一个通知.
     UIScrollView * viewContainer = [[UIScrollView alloc]init];
     viewContainer.backgroundColor = [UIColor greenColor];
+    self.viewContainer.contentSize = CGSizeMake(self.frame.size.width * 2, 0);
     viewContainer.pagingEnabled = YES;
     [self addSubview: viewContainer];
     
@@ -65,13 +71,9 @@
     self.viewContainer = viewContainer;
     Release(viewContainer);
     self.viewContainer.translatesAutoresizingMaskIntoConstraints = NO;
-}
-
-- (void)setFrame:(CGRect)frame
-{
-    [super setFrame:frame];
     
-    self.viewContainer.contentSize = CGSizeMake(self.frame.size.width * 2, 0);
+    
+    
 }
 
 - (void)setDataSource:(id<YFRotateViewDataSource>)dataSource
@@ -91,7 +93,6 @@
         }
     }
 
-    // ???:此方法需要和一个显示视图的方法封装.
     [self showCellAtIndex: indexOfSetUpCell];
 }
 

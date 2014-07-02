@@ -24,20 +24,14 @@
     return self;
 }
 
+// !!!: 表的执行时机: 可能原因: 监测 viewWillDidApperar 通知.
 - (void)loadView
 {
     YFRotateView * rotateView = [[YFRotateView alloc] init];
-    
     rotateView.delegate = self;
     rotateView.dataSource = self;
     
-//    UIImageView * view = [[UIImageView alloc] initWithImage:[UIImage imageNamed: @"001.jpg"]];
-//    view.frame = CGRectMake(0, 0, 320, 568);
-//    view.backgroundColor = [UIColor blueColor];
-//    [rotateView.viewContainer addSubview: view];
-    
     self.view = rotateView;
-//    CGRect rect = rotateView.frame;
     Release(rotateView);
 }
 
