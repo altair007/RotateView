@@ -44,6 +44,15 @@
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle: @"登录" style:UIBarButtonItemStylePlain target:nil action: NULL];
 }
 
+- (void)viewDidAppear:(BOOL)animated
+{
+    NSArray * array = self.view.viewContainer.subviews;
+    CGRect rect = self.view.viewContainer.frame;
+    CGRect rect2 = self.view.viewContainer.bounds;
+    CGSize size = self.view.viewContainer.contentSize;
+    CGPoint point = self.view.viewContainer.contentOffset;
+}
+
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
