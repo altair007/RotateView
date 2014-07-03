@@ -53,28 +53,17 @@
     
 }
 
-- (void)viewDidAppear:(BOOL)animated
-{
-    CGFloat x =  self.view.YFRVViewContainer.contentOffset.x;
-}
-
 #pragma mark - YFRotateViewDataSource 协议方法
 - (NSInteger)numberOfCellsInRotateView:(YFRotateView *)rotateView
 {
-    return 2;
+    return 20;
 }
 
 - (UIView *)rotateView:(YFRotateView *)rotateView cellForColAtIndex:(NSUInteger) index
 {
-    if (0 == index) {
-        UIImageView * view = [[UIImageView alloc] initWithImage:[UIImage imageNamed: @"001.jpg"]];
-        view.frame = CGRectMake(0, 0, 320, 568);
-        view.backgroundColor = [UIColor blueColor];
-        
-        return view;
-    }
+    NSString * imageName = [NSString stringWithFormat:@"00%lu.jpg", index+1];
 
-    UIImageView * view = [[UIImageView alloc] initWithImage:[UIImage imageNamed: @"002.jpg"]];
+    UIImageView * view = [[UIImageView alloc] initWithImage:[UIImage imageNamed: imageName]];
     view.frame = CGRectMake(0, 0, 320, 568);
     view.backgroundColor = [UIColor blueColor];
     

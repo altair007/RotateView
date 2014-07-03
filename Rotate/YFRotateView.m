@@ -74,7 +74,9 @@ typedef enum{
     // 设置视图容器.
     UIScrollView * viewContainer = [[UIScrollView alloc]init];
     viewContainer.backgroundColor = [UIColor greenColor];
-    viewContainer.contentSize = CGSizeMake(self.frame.size.width * 2, 0);
+    viewContainer.showsVerticalScrollIndicator = NO;
+    viewContainer.showsHorizontalScrollIndicator = NO;
+    viewContainer.delaysContentTouches = YES;
     viewContainer.pagingEnabled = YES;
     viewContainer.translatesAutoresizingMaskIntoConstraints = NO;
     viewContainer.delegate = self;
@@ -106,7 +108,7 @@ typedef enum{
     [self showCellAtIndex: indexOfSetUpCell];
 }
 
-// ???:有一个潜在的BUG: 右滑过快,会出现反弹框!
+// ???:有一个潜在的BUG: 右滑过快,会出现反弹框! 这个bug,似乎只存在于加速操作.可以在加速开始时,临时关闭回弹功能.
 - (void) showCellAtIndex: (NSUInteger) index
 {
     // ???: 此处应该有一个逻辑,决定index大于视图总数量时,是轮转,还是终止旋转.
@@ -120,6 +122,10 @@ typedef enum{
     NSNumber * heightOfViewContainer = [NSNumber numberWithDouble: self.frame.size.height - [self.YFRVheightOfHeaderView doubleValue] - [self.YFRVheightOfNavigation doubleValue]];
     
     if(1 == self.YFRVVisibleViews.count){
+        // !!!:临时加一个判断:
+        NSLog(@"show1:%g",self.YFRVViewContainer.contentOffset.x);
+        
+        
         NSString * indexStr = [NSString stringWithFormat:@"%lu", index];
         UIView * visibleView = [self.YFRVVisibleViews objectForKey: indexStr];
         
@@ -137,12 +143,9 @@ typedef enum{
             direction = YES;
         }
         
-        // 获取视图目前的偏移值,以供计算偏移后目标的偏移值.
-        CGPoint offsetOriginal = self.YFRVViewContainer.contentOffset;
-        
         // 移除已有的"约束",避免冲突.
-        NSArray * constraintstemp = self.YFRVViewContainer.constraints;
-        [self.YFRVViewContainer removeConstraints: constraintstemp];
+        NSArray * temp = self.YFRVViewContainer.constraints;
+        [self.YFRVViewContainer removeConstraints: temp];
         
         UIView * cell = [self.dataSource rotateView: self cellForColAtIndex: index];
         cell.backgroundColor = [UIColor redColor];
@@ -163,29 +166,21 @@ typedef enum{
         
         [constraintsArray addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat: visualStr options:0 metrics:NSDictionaryOfVariableBindings(widthOfViewContainer) views: NSDictionaryOfVariableBindings(cell,visibleView)]];
 
-        
+        temp = self.YFRVViewContainer.constraints;
+
         [self.YFRVViewContainer addConstraints:constraintsArray];
         [self.YFRVVisibleViews setObject: cell forKey:[NSString stringWithFormat:@"%lu", index]];
+        temp = self.YFRVViewContainer.constraints;
         
-//        // 根据是左滑还是右滑,正确设置偏移修正值,并正确调整容器偏移.
-//        CGFloat  adjustValue = self.YFRVViewContainer.frame.size.width; // 向左移.
-//        if (YES != direction) { // 向右移.
-//            adjustValue = - adjustValue;
-//        }
-        
-//        offsetOriginal.x = adjustValue + offsetOriginal.x;
-//        [self.YFRVViewContainer setContentOffset: offsetOriginal animated: NO]; // 此处不需要过渡效果.否则会造成用户视觉上的混乱.
-//        CGRect bouds = self.YFRVViewContainer.bounds;
-//        bouds.origin.x = -100;
-//        self.YFRVViewContainer.bounds = bouds;
-        
-//        self.YFRVViewContainer.center = CGPointMake(50, 50);
+        // ???:更新,又删除原"约束",二者留一个即可了把?
+        [self.YFRVViewContainer setNeedsUpdateConstraints];
         
         return;
     }
     
-    /* 说明是初始化视图容器. */
-    // ???:将0.25设置为宏?
+    [self.YFRVViewContainer removeConstraints: self.YFRVViewContainer.constraints];
+    
+    // 必须要将让内容宽度比视图容器宽度略大,否则将不能滚动.
     NSNumber * withOfContent = [NSNumber numberWithDouble: self.frame.size.width + 0.25];
     
     UIView * cell = [self.dataSource rotateView: self cellForColAtIndex: index];
@@ -194,31 +189,56 @@ typedef enum{
     [self.YFRVViewContainer addSubview: cell];
     
     NSMutableArray * constraintsArray = [NSMutableArray arrayWithCapacity: 42];
-    [constraintsArray addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat: @"H:|[cell(==withOfContent)]|" options:0 metrics:NSDictionaryOfVariableBindings(withOfContent) views: NSDictionaryOfVariableBindings(cell)]];
+    
+    // ???:临时修改
+    [constraintsArray addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat: @"|[cell(==withOfContent)]|" options:0 metrics:NSDictionaryOfVariableBindings(withOfContent) views: NSDictionaryOfVariableBindings(cell)]];
     
     [constraintsArray addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat: @"V:|[cell(==heightOfViewContainer)]|" options:0 metrics:NSDictionaryOfVariableBindings(heightOfViewContainer) views: NSDictionaryOfVariableBindings(cell)]];
     
     [self.YFRVViewContainer addConstraints:constraintsArray];
     
     [self.YFRVVisibleViews setObject: cell forKey: [NSString stringWithFormat: @"%lu", index]];
+    
+    // ???:更新,又删除原"约束",二者留一个即可了把?
+    [self.YFRVViewContainer setNeedsUpdateConstraints];
 }
 
 # pragma mark - 协议方法
 
+/* 在快速拖动时,有一定几率出现BUG:看到部分空白.原因是UIScrollView的回弹功能引起的.
+ 修复方案是:开始加速前关闭"回弹"; 结束加速时,重新开启"回弹".
+ */
+- (void)scrollViewWillBeginDecelerating:(UIScrollView *)scrollView
+{
+    scrollView.bounces = NO;
+}
+
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
+{
+    scrollView.bounces = YES;
+}
+
+// ???:跌代至此,建议先完成算法核心!
 - (void)scrollViewDidScroll:(UIScrollView *) scrollView
 {
-    NSLog(@"%g", scrollView.contentOffset.x);
+    /* 当scrollView.contentOffset.x的值由320突变到0或者0.5时,此代理方法也会被执行.
+     此种情况必须排除,否则会引起非预期行为.
+     可以验证:scrollViewDidScroll检测到的单次偏移的最小值是0.5
+     可以验证:但视图容器只存在单个视图视图时,其x=0,y=0.*/
+    if (scrollView.contentOffset.x >0 && scrollView.contentOffset.x < 0.51) {
+        return;
+    }
     
     if (0 == self.YFRVVisibleViews.count) { // 说明滚动视图还没初始化,直接返回即可.
         return;
     }
     
     if (1 == self.YFRVVisibleViews.count) { // 说明此时需要一个额外的视图.
-        // ???:给这段代码加一下注释.
+        NSLog(@"要添加视图:%g", scrollView.contentOffset.x);
+        
         // 获取偏移位置.
         YFRVScrollDirection direction = YFRVScrollLeft;
-        // ???:不应该使用魔数0.25!
-        // ???:这么判断方向,真的合适吗?
+        
         if (self.YFRVViewContainer.contentOffset.x > 0.25) {
             direction = YFRVScrollRight;
         }
@@ -239,11 +259,6 @@ typedef enum{
         return;
     }
     
-    // ???: 猜想:使用约束布置视图,或许就不需要 修正 offset偏移了.
-    // ???: 只要能在隐藏视图时,重置"约束"应该就可以实现想要的效果了.
-    // ???: 给他真正的图形,测试下!
-    // ???: 迭代至此@
-    
     // 说明此时视图容器上已经显示了两张视图.
     if (0 == self.YFRVViewContainer.contentOffset.x) { // 隐藏后一张视图.
         // ???: 必须考虑下方向!
@@ -259,6 +274,7 @@ typedef enum{
         return;
     }
     
+    NSLog(@"offset:%g", self.YFRVViewContainer.contentOffset.x);
     if (self.YFRVViewContainer.frame.size.width == self.YFRVViewContainer.contentOffset.x) { // 隐藏前一张视图.
         // !!!:建议封装.
         NSArray * keys = [self.YFRVVisibleViews allKeys];
@@ -266,12 +282,16 @@ typedef enum{
         if ([keys[1] integerValue] < [keys[0] integerValue]) {
             min = keys[1];
         }
-        [self.YFRVVisibleViews removeObjectForKey: min];
+//        [self.YFRVVisibleViews removeObjectForKey: min];
+        [self.YFRVVisibleViews enumerateKeysAndObjectsUsingBlock:^(id key, UIView * obj, BOOL *stop) {
+            [obj removeFromSuperview];
+        }];
+        [self.YFRVVisibleViews removeAllObjects];
+        
+        [self showCellAtIndex:[min integerValue]+1];
         
         return;
     }
-    
-    NSLog(@"%@", NSStringFromCGRect(scrollView.bounds) );
 }
 
 #pragma mark - 私有方法
