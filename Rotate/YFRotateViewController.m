@@ -24,7 +24,6 @@
     return self;
 }
 
-// !!!: 表的执行时机: 可能原因: 监测 viewWillDidApperar 通知.
 - (void)loadView
 {
     YFRotateView * rotateView = [[YFRotateView alloc] init];
@@ -32,7 +31,7 @@
     rotateView.dataSource = self;
     
     self.view = rotateView;
-    Release(rotateView);
+    YFRVRelease(rotateView);
 }
 
 - (void)viewDidLoad
@@ -42,15 +41,6 @@
     self.navigationItem.title = @"魅影传媒";
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle: @"目录" style:UIBarButtonItemStylePlain target: nil action: NULL];
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle: @"登录" style:UIBarButtonItemStylePlain target:nil action: NULL];
-}
-
-- (void)viewDidAppear:(BOOL)animated
-{
-    NSArray * array = self.view.viewContainer.subviews;
-    CGRect rect = self.view.viewContainer.frame;
-    CGRect rect2 = self.view.viewContainer.bounds;
-    CGSize size = self.view.viewContainer.contentSize;
-    CGPoint point = self.view.viewContainer.contentOffset;
 }
 
 - (void)didReceiveMemoryWarning
@@ -71,7 +61,15 @@
 
 - (UIView *)rotateView:(YFRotateView *)rotateView cellForColAtIndex:(NSUInteger) index
 {
-    UIImageView * view = [[UIImageView alloc] initWithImage:[UIImage imageNamed: @"001.jpg"]];
+    if (0 == index) {
+        UIImageView * view = [[UIImageView alloc] initWithImage:[UIImage imageNamed: @"001.jpg"]];
+        view.frame = CGRectMake(0, 0, 320, 568);
+        view.backgroundColor = [UIColor blueColor];
+        
+        return view;
+    }
+
+    UIImageView * view = [[UIImageView alloc] initWithImage:[UIImage imageNamed: @"002.jpg"]];
     view.frame = CGRectMake(0, 0, 320, 568);
     view.backgroundColor = [UIColor blueColor];
     
@@ -82,4 +80,11 @@
 {
     return 0;
 }
+
+#pragma mark - YFRotateViewDelegate 协议方法.
+- (CGFloat)heightForHeaderInRotateView:(YFRotateView *)rotateView
+{
+    return 30.0;
+}
+
 @end

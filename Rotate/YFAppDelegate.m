@@ -7,6 +7,7 @@
 //
 
 #import "YFAppDelegate.h"
+#import "YFRotateView.h"
 #import "YFRotateViewController.h"
 
 @implementation YFAppDelegate
@@ -23,7 +24,7 @@
 {
     UIWindow * window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     self.window = window;
-    Release(window);
+    YFRVRelease(window);
     
     // Override point for customization after application launch.
     self.window.backgroundColor = [UIColor whiteColor];
