@@ -104,13 +104,10 @@
 @property (assign, nonatomic) id<YFRotateViewDelegate> delegate; //!< 代理.
 @property (assign, nonatomic) id<YFRotateViewDataSource> dataSource; //!< 数据源.
 
+// 临时暴漏:
+@property (retain, nonatomic, readonly) UIScrollView * YFRVViewContainer; //!< 用于放置视图.
 
-/**
- *  相册上正在显示几张图片.
- *
- *  @return 相册上正在显示的图片数量.
- */
-- (NSUInteger) numberOfVisibleViews;
+// ???:或许应该隐藏这些方法.
 
 /**
  *  初始化子视图.

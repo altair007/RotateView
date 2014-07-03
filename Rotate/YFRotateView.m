@@ -6,14 +6,22 @@
 //  Copyright (c) 2014年 Shadow. All rights reserved.
 //
 
+/**
+ *  滚动视图移动方向.
+ */
+typedef enum{
+    YFRVScrollLeft, //!< 左移.
+    YFRVScrollRight //!< 右移.
+}YFRVScrollDirection;
+
 #import "YFRotateView.h"
 
 @interface YFRotateView ()
 #pragma mark - 私有属性.
-@property (retain, nonatomic) NSMutableArray * YFRVVisibleViews; //!< 存储相册上可以看到的视图.
-@property (retain, nonatomic) UIScrollView * viewContainer; //!< 用于放置视图.
-@property (retain, nonatomic) UIView * headerView; //!< 页眉用于导航.
-@property (retain, nonatomic) NSMutableDictionary * visibleViews; //!< 存储已经放到到视图容器上的视图,以视图的位置为键,以视图对象为值.
+
+@property (retain, nonatomic) UIScrollView * YFRVViewContainer; //!< 用于放置视图.
+@property (retain, nonatomic) UIView * YFRVHeaderView; //!< 页眉用于导航.
+@property (retain, nonatomic) NSMutableDictionary * YFRVVisibleViews; //!< 存储已经放到到视图容器上的视图,以视图的位置为键,以视图对象为值.
 
 #pragma mark - 私有方法.
 /**
@@ -44,11 +52,6 @@
     return self;
 }
 
-- (NSUInteger) numberOfVisibleViews
-{
-    return _YFRVVisibleViews.count;
-}
-
 - (void) setupSubviews;
 {
     if (nil == self.window) { // 说明当前还不需要显示此视图,直接返回.
@@ -64,8 +67,8 @@
     UIView * headerView = [[UIView alloc] init];
     headerView.backgroundColor = [UIColor blackColor];
     headerView.translatesAutoresizingMaskIntoConstraints = NO;
-    self.headerView = headerView;
-    [self addSubview: self.headerView];
+    self.YFRVHeaderView = headerView;
+    [self addSubview: self.YFRVHeaderView];
     YFRVRelease(headerView);
     
     // 设置视图容器.
@@ -75,9 +78,9 @@
     viewContainer.pagingEnabled = YES;
     viewContainer.translatesAutoresizingMaskIntoConstraints = NO;
     viewContainer.delegate = self;
-    self.viewContainer = viewContainer;
+    self.YFRVViewContainer = viewContainer;
     YFRVRelease(viewContainer);
-    [self addSubview: self.viewContainer];
+    [self addSubview: self.YFRVViewContainer];
     
     // 设置视图间的约束.
     NSMutableArray * constraintsArray = [NSMutableArray arrayWithCapacity: 42];
@@ -99,36 +102,34 @@
             indexOfSetUpCell = 0;
         }
     }
+    
     [self showCellAtIndex: indexOfSetUpCell];
 }
 
+// ???:有一个潜在的BUG: 右滑过快,会出现反弹框!
 - (void) showCellAtIndex: (NSUInteger) index
 {
     // ???: 此处应该有一个逻辑,决定index大于视图总数量时,是轮转,还是终止旋转.
     
-    if (nil == self.visibleViews) { // 初始化 visibleViews 属性.
-        self.visibleViews = [NSMutableDictionary dictionaryWithCapacity: 42];
-    }
-    
-    if (2 == self.visibleViews.count) { // 容器中的视图数量达到最大值,直接返回.
-        return;
+    if (nil == self.YFRVVisibleViews) { // 初始化 visibleViews 属性.
+        self.YFRVVisibleViews = [NSMutableDictionary dictionaryWithCapacity: 42];
     }
     
     // 视图约束中需要使用这些数据.
     NSNumber * widthOfViewContainer = [NSNumber numberWithDouble: self.frame.size.width]; // 视图容器的宽度,默认与父视图同宽.
     NSNumber * heightOfViewContainer = [NSNumber numberWithDouble: self.frame.size.height - [self.YFRVheightOfHeaderView doubleValue] - [self.YFRVheightOfNavigation doubleValue]];
     
-    if(1 == self.visibleViews.count){
+    if(1 == self.YFRVVisibleViews.count){
         NSString * indexStr = [NSString stringWithFormat:@"%lu", index];
-        UIView * visibleView = [self.visibleViews objectForKey: indexStr];
+        UIView * visibleView = [self.YFRVVisibleViews objectForKey: indexStr];
         
         if (nil != visibleView) { // 说明此位置的视图已被设置,直接返回即可.
             return;
         }
         
         // 获取已经被设置的视图及其位置
-        visibleView = [[self.visibleViews allValues] lastObject];
-        NSUInteger indexVisible = [[[self.visibleViews allKeys] lastObject] integerValue];
+        visibleView = [[self.YFRVVisibleViews allValues] lastObject];
+        NSUInteger indexVisible = [[[self.YFRVVisibleViews allKeys] lastObject] integerValue];
      
         // 分析滑动方向,YES,向左;NO,向右.
         BOOL direction = NO;
@@ -137,16 +138,16 @@
         }
         
         // 获取视图目前的偏移值,以供计算偏移后目标的偏移值.
-        CGPoint offsetOriginal = self.viewContainer.contentOffset;
+        CGPoint offsetOriginal = self.YFRVViewContainer.contentOffset;
         
         // 移除已有的"约束",避免冲突.
-        NSArray * constraintstemp = self.viewContainer.constraints;
-        [self.viewContainer removeConstraints: constraintstemp];
+        NSArray * constraintstemp = self.YFRVViewContainer.constraints;
+        [self.YFRVViewContainer removeConstraints: constraintstemp];
         
         UIView * cell = [self.dataSource rotateView: self cellForColAtIndex: index];
         cell.backgroundColor = [UIColor redColor];
         cell.translatesAutoresizingMaskIntoConstraints = NO;
-        [self.viewContainer addSubview: cell];
+        [self.YFRVViewContainer addSubview: cell];
         
         /* 为视图容器设置新的视图约束. */
         NSMutableArray * constraintsArray = [NSMutableArray arrayWithCapacity: 42];
@@ -163,51 +164,114 @@
         [constraintsArray addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat: visualStr options:0 metrics:NSDictionaryOfVariableBindings(widthOfViewContainer) views: NSDictionaryOfVariableBindings(cell,visibleView)]];
 
         
-        [self.viewContainer addConstraints:constraintsArray];
-        [self.visibleViews setObject: cell forKey:[NSString stringWithFormat:@"%lu", index]];
+        [self.YFRVViewContainer addConstraints:constraintsArray];
+        [self.YFRVVisibleViews setObject: cell forKey:[NSString stringWithFormat:@"%lu", index]];
         
-        // 根据是左滑还是右滑,正确设置偏移修正值,并正确调整容器偏移.
-        // ???: 猜测: 偶尔的闪图bug,可能就出现在没处理好 0.5 的误差上.尝试处理下.
-        CGFloat  adjustValue = self.viewContainer.frame.size.width; // 向左移.
-        if (YES != direction) { // 向右移.
-            adjustValue = - adjustValue;
-        }
+//        // 根据是左滑还是右滑,正确设置偏移修正值,并正确调整容器偏移.
+//        CGFloat  adjustValue = self.YFRVViewContainer.frame.size.width; // 向左移.
+//        if (YES != direction) { // 向右移.
+//            adjustValue = - adjustValue;
+//        }
         
-        offsetOriginal.x = adjustValue + offsetOriginal.x;
-        self.viewContainer.contentOffset = offsetOriginal;
+//        offsetOriginal.x = adjustValue + offsetOriginal.x;
+//        [self.YFRVViewContainer setContentOffset: offsetOriginal animated: NO]; // 此处不需要过渡效果.否则会造成用户视觉上的混乱.
+//        CGRect bouds = self.YFRVViewContainer.bounds;
+//        bouds.origin.x = -100;
+//        self.YFRVViewContainer.bounds = bouds;
+        
+//        self.YFRVViewContainer.center = CGPointMake(50, 50);
         
         return;
     }
     
     /* 说明是初始化视图容器. */
-    // ???:可不可以使其更小些.
-    // ???:0.5的声明应该前置,否则 当显示第二个视图时,无法精确修正偏移值.!
-    // ???:迭代至此!
+    // ???:将0.25设置为宏?
     NSNumber * withOfContent = [NSNumber numberWithDouble: self.frame.size.width + 0.25];
     
     UIView * cell = [self.dataSource rotateView: self cellForColAtIndex: index];
     cell.backgroundColor = [UIColor cyanColor];
     cell.translatesAutoresizingMaskIntoConstraints = NO;
-    [self.viewContainer addSubview: cell];
+    [self.YFRVViewContainer addSubview: cell];
     
     NSMutableArray * constraintsArray = [NSMutableArray arrayWithCapacity: 42];
     [constraintsArray addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat: @"H:|[cell(==withOfContent)]|" options:0 metrics:NSDictionaryOfVariableBindings(withOfContent) views: NSDictionaryOfVariableBindings(cell)]];
     
     [constraintsArray addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat: @"V:|[cell(==heightOfViewContainer)]|" options:0 metrics:NSDictionaryOfVariableBindings(heightOfViewContainer) views: NSDictionaryOfVariableBindings(cell)]];
     
-    [self.viewContainer addConstraints:constraintsArray];
+    [self.YFRVViewContainer addConstraints:constraintsArray];
     
-    [self.visibleViews setObject: cell forKey: [NSString stringWithFormat: @"%lu", index]];
+    [self.YFRVVisibleViews setObject: cell forKey: [NSString stringWithFormat: @"%lu", index]];
 }
 
 # pragma mark - 协议方法
+
 - (void)scrollViewDidScroll:(UIScrollView *) scrollView
 {
-    [self showCellAtIndex:1];
-    // ???: 此处缺少一个逻辑: 计算需要显示哪个位置的图片,显示即可.
+    NSLog(@"%g", scrollView.contentOffset.x);
     
-    // ???: 需要向上或向下取整.
+    if (0 == self.YFRVVisibleViews.count) { // 说明滚动视图还没初始化,直接返回即可.
+        return;
+    }
     
+    if (1 == self.YFRVVisibleViews.count) { // 说明此时需要一个额外的视图.
+        // ???:给这段代码加一下注释.
+        // 获取偏移位置.
+        YFRVScrollDirection direction = YFRVScrollLeft;
+        // ???:不应该使用魔数0.25!
+        // ???:这么判断方向,真的合适吗?
+        if (self.YFRVViewContainer.contentOffset.x > 0.25) {
+            direction = YFRVScrollRight;
+        }
+        
+        // 获取当前显示的视图的位置.
+        NSUInteger index = [[[self.YFRVVisibleViews allKeys] lastObject] integerValue];
+        
+        // 根据偏移方向判断显示哪个位置的视图.
+        NSUInteger changeIndex = 1;
+        if (YFRVScrollLeft == direction) {
+            changeIndex = - 1;
+        }
+        NSUInteger indexToVisible = index + changeIndex;
+        
+        // 使指定位置视图可视.
+        [self showCellAtIndex: indexToVisible];
+        
+        return;
+    }
+    
+    // ???: 猜想:使用约束布置视图,或许就不需要 修正 offset偏移了.
+    // ???: 只要能在隐藏视图时,重置"约束"应该就可以实现想要的效果了.
+    // ???: 给他真正的图形,测试下!
+    // ???: 迭代至此@
+    
+    // 说明此时视图容器上已经显示了两张视图.
+    if (0 == self.YFRVViewContainer.contentOffset.x) { // 隐藏后一张视图.
+        // ???: 必须考虑下方向!
+        // ???:此处会有一个bug: 左移.
+        // !!!:建议封装.
+//        NSArray * keys = [self.YFRVVisibleViews allKeys];
+//        NSString * max = keys[0];
+//        if ([keys[1] integerValue] > [keys[0] integerValue]) {
+//            max = keys[1];
+//        }
+//        [self.YFRVVisibleViews removeObjectForKey: max];
+        
+        return;
+    }
+    
+    if (self.YFRVViewContainer.frame.size.width == self.YFRVViewContainer.contentOffset.x) { // 隐藏前一张视图.
+        // !!!:建议封装.
+        NSArray * keys = [self.YFRVVisibleViews allKeys];
+        NSString * min = keys[0];
+        if ([keys[1] integerValue] < [keys[0] integerValue]) {
+            min = keys[1];
+        }
+        [self.YFRVVisibleViews removeObjectForKey: min];
+        
+        return;
+    }
+    
+    NSLog(@"%@", NSStringFromCGRect(scrollView.bounds) );
 }
 
 #pragma mark - 私有方法

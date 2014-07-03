@@ -53,6 +53,11 @@
     
 }
 
+- (void)viewDidAppear:(BOOL)animated
+{
+    CGFloat x =  self.view.YFRVViewContainer.contentOffset.x;
+}
+
 #pragma mark - YFRotateViewDataSource 协议方法
 - (NSInteger)numberOfCellsInRotateView:(YFRotateView *)rotateView
 {
