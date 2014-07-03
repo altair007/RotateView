@@ -229,7 +229,6 @@ typedef enum{
     // 临时测试:
     NSDictionary * dict = self.YFRVVisibleViews;
     // !!!:它的宽度为什么是0?必须使用offset进行偏移修正吗?
-    // !!!:迭代至此!
     CGSize size = self.YFRVViewContainer.contentSize;
 }
 
