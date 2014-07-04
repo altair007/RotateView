@@ -38,6 +38,19 @@ typedef enum{
  */
 - (NSNumber *) YFRVheightOfNavigation;
 
+
+/**
+ *  初始化子视图.
+ */
+- (void) YFRVSetupSubviews;
+
+/**
+ *  显示第几个位置的视图.
+ *
+ *  @param index 要显示的视图的位置.
+ */
+- (void) YFRVShowCellAtIndex: (NSUInteger) index;
+
 @end
 
 @implementation YFRotateView
@@ -47,12 +60,12 @@ typedef enum{
     self = [super initWithFrame:frame];
     if (self) {
         // Initialization code
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(setupSubviews) name: UIWindowDidBecomeVisibleNotification object: nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(YFRVSetupSubviews) name: UIWindowDidBecomeVisibleNotification object: nil];
     }
     return self;
 }
 
-- (void) setupSubviews;
+- (void) YFRVSetupSubviews;
 {
     if (nil == self.window) { // 说明当前还不需要显示此视图,直接返回.
         return;
@@ -76,8 +89,11 @@ typedef enum{
     viewContainer.backgroundColor = [UIColor greenColor];
     viewContainer.showsVerticalScrollIndicator = NO;
     viewContainer.showsHorizontalScrollIndicator = NO;
-    viewContainer.delaysContentTouches = YES;
     viewContainer.pagingEnabled = YES;
+    
+    // !!!:临时关闭回弹.
+    viewContainer.bounces = NO;
+    
     viewContainer.translatesAutoresizingMaskIntoConstraints = NO;
     viewContainer.delegate = self;
     self.YFRVViewContainer = viewContainer;
@@ -105,11 +121,26 @@ typedef enum{
         }
     }
     
-    [self showCellAtIndex: indexOfSetUpCell];
+    [self YFRVShowCellAtIndex: indexOfSetUpCell];
 }
 
-- (void) showCellAtIndex: (NSUInteger) index
+- (void) YFRVShowCellAtIndex: (NSUInteger) index
 {
+    if (index >= [self.dataSource numberOfCellsInRotateView:self]) { // 超出给定视图数量
+        if (1 == self.YFRVVisibleViews.count &&
+            index == [[self.YFRVVisibleViews allKeys][0] integerValue]) {
+            // !!!:临时测试: 通过重置bouds 修复最后一张图片的闪图bug.
+            // ???:
+            CGRect bounds = self.YFRVViewContainer.bounds;
+            bounds.origin.x = 0;
+            self.YFRVViewContainer.bounds = bounds;
+            
+        }
+        
+        return;
+    }
+    
+    
     if (nil == self.YFRVVisibleViews) { // 初始化 visibleViews 属性.
         self.YFRVVisibleViews = [NSMutableDictionary dictionaryWithCapacity: 42];
     }
@@ -119,10 +150,6 @@ typedef enum{
     NSNumber * heightOfViewContainer = [NSNumber numberWithDouble: self.frame.size.height - [self.YFRVheightOfHeaderView doubleValue] - [self.YFRVheightOfNavigation doubleValue]];
     
     if(1 == self.YFRVVisibleViews.count){
-        // !!!:临时加一个判断:
-        NSLog(@"show1:%g",self.YFRVViewContainer.contentOffset.x);
-        
-        
         NSString * indexStr = [NSString stringWithFormat:@"%lu", index];
         UIView * visibleView = [self.YFRVVisibleViews objectForKey: indexStr];
         
@@ -133,11 +160,10 @@ typedef enum{
         // 获取已经被设置的视图及其位置
         visibleView = [[self.YFRVVisibleViews allValues] lastObject];
         NSUInteger indexVisible = [[[self.YFRVVisibleViews allKeys] lastObject] integerValue];
-     
-        // 分析滑动方向,YES,向左;NO,向右.
-        BOOL direction = NO;
+        
+        YFRVScrollDirection direction = YFRVScrollRight;
         if (index < indexVisible) { // 向左移.
-            direction = YES;
+            direction = YFRVScrollLeft;
         }
         
         // 移除已有的"约束",避免冲突.
@@ -155,33 +181,20 @@ typedef enum{
         [constraintsArray addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat: @"V:|[cell(==heightOfViewContainer)]|" options:0 metrics:NSDictionaryOfVariableBindings(heightOfViewContainer) views: NSDictionaryOfVariableBindings(cell)]];
         
         // 水平方向上的视图约束,需要根据是左移还是右移,分别考虑.
-        // !!!:临时测试.
         NSString * visualStr = @"|[cell(==widthOfViewContainer)][visibleView(==cell)]|"; // 向左滑.
-        if (YES != direction) { // 向右滑.
+        if (YFRVScrollLeft != direction) { // 向右滑.
             visualStr = @"|[visibleView(==widthOfViewContainer)][cell(==visibleView)]|";
         }
-        
-// !!!:原可用代码.
-//        NSString * visualStr = @"|[cell(==widthOfViewContainer)][visibleView(==cell)]|"; // 向左滑.
-//        if (YES != direction) { // 向右滑.
-//            visualStr = @"|[visibleView(==widthOfViewContainer)][cell(==visibleView)]|";
-//        }
         
         [constraintsArray addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat: visualStr options:0 metrics:NSDictionaryOfVariableBindings(widthOfViewContainer) views: NSDictionaryOfVariableBindings(cell,visibleView)]];
         
         [self.YFRVViewContainer addConstraints:constraintsArray];
         [self.YFRVVisibleViews setObject: cell forKey:[NSString stringWithFormat:@"%lu", index]];
 
-        // 临时添加
-        // !!!:向左滑,需要设置offset值.
-        if (YES == direction) {
-//            CGPoint offset = self.YFRVViewContainer.contentOffset;
-//            offset.x = 0; // 此处不能使用值self.YFRVViewContainer.frame.size.width,以免被误判为"要删除前一张图片的情况."
-//            self.YFRVViewContainer.contentOffset = offset;
+        if (YFRVScrollLeft == direction) { // 修正容器视图的bouds值,以正确显示图形.
             CGRect bounds = self.YFRVViewContainer.bounds;
             bounds.origin.x = 320;
             self.YFRVViewContainer.bounds = bounds;
-            
         }
         
         return;
@@ -206,6 +219,13 @@ typedef enum{
     [self.YFRVViewContainer addConstraints:constraintsArray];
     
     [self.YFRVVisibleViews setObject: cell forKey: [NSString stringWithFormat: @"%lu", index]];
+    
+    /* 为视图容器设置合适的bouds值
+     * 这一步是必须的.因为容器视图的子视图比容器视图本身略宽,此处如果不将容器视图的边框显式置为0,容器视图会自动调整,以试图完整显示内容,引起contentOffset向右偏移0.5,然后会出现非预期行为.
+     */
+    CGRect bounds = self.YFRVViewContainer.bounds;
+    bounds.origin.x = 0;
+    self.YFRVViewContainer.bounds = bounds;
 }
 
 # pragma mark - 协议方法
@@ -220,37 +240,35 @@ typedef enum{
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
-    scrollView.bounces = YES;
-}
-
-- (void)scrollViewDidScroll:(UIScrollView *) scrollView
-{
-
-    NSLog(@"观察bouds 与 offset的关系");
-    NSLog(@"offset:%@", NSStringFromCGPoint(scrollView.contentOffset));
-    NSLog(@"bouds:%@", NSStringFromCGRect(scrollView.bounds));
-    
-    // ???:这种特殊情况产生的特殊原因到底是什么?为什么会来不及更新"约束"?
-    /* 当scrollView.contentOffset.x的值由320突变到0或者0.5时,此代理方法也会被执行.
-     此种情况必须排除,否则会引起非预期行为.
-     可以验证:scrollViewDidScroll检测到的单次偏移的最小值是0.5
-     可以验证:但视图容器只存在单个视图视图时,其x=0,y=0.*/
-    if (scrollView.contentOffset.x >0 && scrollView.contentOffset.x < 0.51) {
-        // ???:此处修正bouds值,真的有意义吗?
-        CGRect bounds = self.YFRVViewContainer.bounds;
-        bounds.origin.x = 0;
-        self.YFRVViewContainer.bounds = bounds;
+    // 当视图是最左或最右的视图时,不能打开"回弹"效果.
+    if (0 == [self.YFRVVisibleViews.allKeys[0] integerValue]) { // 说明正在显示最左端视图.
         return;
     }
     
-    if (0 == self.YFRVVisibleViews.count) { // 说明滚动视图还没初始化,直接返回即可.
+    if ([self.dataSource numberOfCellsInRotateView: self] == [self.YFRVVisibleViews.allKeys[0] integerValue] + 1) { // 说明正在显示最右端视图.
+        CGRect bouds = scrollView.bounds;
+        bouds.origin.x = 0.5;
+        scrollView.bounds = bouds;
+        return;
+    }
+    
+    scrollView.bounces = YES;
+}
 
-        
+// !!!:有一个BUG: 最后一张图片右移时,有一定几率 闪图.轻击,即跳转到倒数第二张.
+// !!!:应该可以用0.5临界条件修复.
+// !!!: 又或者当检测到视图越界时,重置一下BOUDS.
+- (void)scrollViewDidScroll:(UIScrollView *) scrollView
+{
+    if (0 == self.YFRVVisibleViews.count) { // 说明滚动视图还没初始化,直接返回即可.
         return;
     }
     
     if (1 == self.YFRVVisibleViews.count) { // 说明此时需要一个额外的视图.
         NSLog(@"要添加视图:%g", scrollView.contentOffset.x);
+        
+        // !!!: 迭代至此!
+        // !!!: 点击图片时,会有一个 scrollView.contentOffset.x == 0 产生.好熟悉的bug.应该是可以通过在某个时机重置容器bouds来修复.
         
         // 获取偏移位置.
         YFRVScrollDirection direction = YFRVScrollLeft;
@@ -258,7 +276,7 @@ typedef enum{
         if (self.YFRVViewContainer.contentOffset.x > 0.25) {
             direction = YFRVScrollRight;
         }
-        
+
         // 获取当前显示的视图的位置.
         NSUInteger index = [[[self.YFRVVisibleViews allKeys] lastObject] integerValue];
         
@@ -270,20 +288,12 @@ typedef enum{
         NSUInteger indexToVisible = index + changeIndex;
         
         // 使指定位置视图可视.
-        [self showCellAtIndex: indexToVisible];
-        
-        CGPoint offset = self.YFRVViewContainer.contentOffset;
-        CGSize contentSize = self.YFRVViewContainer.contentSize;
-        NSArray * array = self.YFRVViewContainer.constraints;
-        CGRect frame = self.YFRVViewContainer.frame;
-        CGRect bounds = self.YFRVViewContainer.bounds;
-        
+        [self YFRVShowCellAtIndex: indexToVisible];
         return;
     }
     
     // 说明此时视图容器上已经显示了两张视图.
     if (0 == self.YFRVViewContainer.contentOffset.x) { // 隐藏后一张视图.
-        // !!!:建议封装隐藏视图的算法.
         NSArray * keys = [self.YFRVVisibleViews allKeys];
         NSUInteger indexSmaller = [(NSString *)keys[0] integerValue];
         
@@ -296,12 +306,11 @@ typedef enum{
         }];
         [self.YFRVVisibleViews removeAllObjects];
         
-        [self showCellAtIndex: indexSmaller];
+        [self YFRVShowCellAtIndex: indexSmaller];
         
         return;
     }
     
-    NSLog(@"offset:%g", self.YFRVViewContainer.contentOffset.x);
     if (self.YFRVViewContainer.frame.size.width == self.YFRVViewContainer.contentOffset.x) { // 隐藏前一张视图,即只显示已存在的两张视图中的后一张视图.
 
         // 获取视图位置的较大值.
@@ -317,7 +326,7 @@ typedef enum{
         }];
         [self.YFRVVisibleViews removeAllObjects];
         
-        [self showCellAtIndex: indexBigger];
+        [self YFRVShowCellAtIndex: indexBigger];
         
         return;
     }

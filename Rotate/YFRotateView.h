@@ -99,24 +99,11 @@
 
 @end
 
+// !!!: 或许应该增加两个代理方法,来指明,在最左边和最右边,再拖动,应该做什么!
 @interface YFRotateView : UIView <UIScrollViewDelegate>
 //@property (retain, nonatomic) UIView * initView; //!< 相册初始化完成时,显示在相册上的视图.
 @property (assign, nonatomic) id<YFRotateViewDelegate> delegate; //!< 代理.
 @property (assign, nonatomic) id<YFRotateViewDataSource> dataSource; //!< 数据源.
-
-// ???:或许应该隐藏这些方法.
-
-/**
- *  初始化子视图.
- */
-- (void) setupSubviews;
-
-/**
- *  显示第几个位置的视图.
- *
- *  @param index 要显示的视图的位置.
- */
-- (void) showCellAtIndex: (NSUInteger) index;
 
 @end
 
