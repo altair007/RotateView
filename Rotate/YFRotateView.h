@@ -8,7 +8,8 @@
 
 #import <UIKit/UIKit.h>
 
-// ???:在ARC编译下,看它是否真的支持.
+// !!!:帮连长解决掉那个BUG.
+
 /* 使工程同时支持 ARC 和 MRC 编译. */
 #if ! __has_feature(objc_arc)
 #define YFRVAutorelease(__v) ([__v autorelease]);
@@ -86,6 +87,15 @@
  */
 - (UIView *)rotateView:(YFRotateView *)rotateView cellForColAtIndex:(NSUInteger) index;
 
+/**
+ *  设置某个位置单元格的标题.
+ *
+ *  @param rotateView 轮转视图.
+ *  @param index      视图位置.
+ *
+ *  @return 标题.
+ */
+- (NSString *)rotateView: (YFRotateView *) rotateView titleForCellAtIndex:(NSUInteger) index;
 @optional
 /**
  *  设置初始显示哪个位置的视图.
@@ -98,9 +108,6 @@
 
 @end
 
-// !!!: 或许应该增加两个代理方法,来指明,在最左边和最右边,再拖动,应该做什么!
-// !!!: 增加一个属性,来指示当前显示的视图.
-// !!!: 支持轮转吧!
 @interface YFRotateView : UIView <UIScrollViewDelegate>
 //@property (retain, nonatomic) UIView * initView; //!< 相册初始化完成时,显示在相册上的视图.
 @property (assign, nonatomic) id<YFRotateViewDelegate> delegate; //!< 代理.

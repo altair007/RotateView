@@ -39,8 +39,13 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     self.navigationItem.title = @"魅影传媒";
-    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle: @"目录" style:UIBarButtonItemStylePlain target: nil action: NULL];
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle: @"登录" style:UIBarButtonItemStylePlain target:nil action: NULL];
+    UIBarButtonItem * leftButtonItem = [[UIBarButtonItem alloc] initWithTitle: @"目录" style:UIBarButtonItemStylePlain target: nil action: NULL];
+    self.navigationItem.leftBarButtonItem = leftButtonItem;
+    YFRVRelease(leftButtonItem);
+    
+    UIBarButtonItem * rightButtonItem = self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle: @"登录" style:UIBarButtonItemStylePlain target:nil action: NULL];
+    self.navigationItem.rightBarButtonItem = rightButtonItem;
+    YFRVRelease(rightButtonItem);
 }
 
 - (void)didReceiveMemoryWarning
@@ -61,12 +66,12 @@
 
 - (UIView *)rotateView:(YFRotateView *)rotateView cellForColAtIndex:(NSUInteger) index
 {
-    NSString * imageName = [NSString stringWithFormat:@"00%lu.jpg", index+1];
+    NSString * imageName = [NSString stringWithFormat:@"00%@.jpg", [NSNumber numberWithUnsignedInteger:index+1]];
 
     UIImageView * view = [[UIImageView alloc] initWithImage:[UIImage imageNamed: imageName]];
 //    view.frame = CGRectMake(0, 0, 320, 568);
     view.backgroundColor = [UIColor blueColor];
-    
+    YFRVAutorelease(view);
     return view;
 }
 
@@ -75,6 +80,10 @@
     return 0;
 }
 
+- (NSString *)rotateView: (YFRotateView *) rotateView titleForCellAtIndex:(NSUInteger) index
+{
+    return @"颜风的歌";
+}
 #pragma mark - YFRotateViewDelegate 协议方法.
 - (CGFloat)heightForHeaderInRotateView:(YFRotateView *)rotateView
 {

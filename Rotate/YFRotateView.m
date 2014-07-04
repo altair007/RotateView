@@ -20,8 +20,9 @@ typedef enum{
 #pragma mark - 私有属性.
 
 @property (retain, nonatomic) UIScrollView * YFRVViewContainer; //!< 用于放置视图.
-@property (retain, nonatomic) UIView * YFRVHeaderView; //!< 页眉用于导航.
+@property (retain, nonatomic) UISegmentedControl * YFRVHeaderView; //!< 页眉用于导航.
 @property (retain, nonatomic) NSMutableDictionary * YFRVVisibleViews; //!< 存储已经放到到视图容器上的视图,以视图的位置为键,以视图对象为值.
+@property (assign, nonatomic) NSUInteger  YFRVIndexOfCurrentPage; //!< 当前页面的位置.
 
 #pragma mark - 私有方法.
 /**
@@ -86,8 +87,14 @@ typedef enum{
     NSNumber *  navHeight = self.YFRVheightOfNavigation; //!< 导航栏高度.
     NSNumber * headerHeight = self.YFRVheightOfHeaderView; //!< 页眉高度.
     
-    // 设置页眉.
-    UIView * headerView = [[UIView alloc] init];
+    /* 设置页眉. */
+    // !!!:初始获取页眉要优化.位置在设置初始化视图时,更合适吧!
+    NSMutableArray * titles = [NSMutableArray arrayWithCapacity: 42];
+    for (NSUInteger i = 0; i < 3; i++) {
+        [titles addObject:[self.dataSource rotateView:self titleForCellAtIndex:i]];
+    }
+    
+    UISegmentedControl * headerView = [[UISegmentedControl alloc] initWithItems: titles];
     headerView.backgroundColor = [UIColor blackColor];
     headerView.translatesAutoresizingMaskIntoConstraints = NO;
     self.YFRVHeaderView = headerView;
@@ -148,7 +155,7 @@ typedef enum{
     NSNumber * heightOfViewContainer = [NSNumber numberWithDouble: self.frame.size.height - [self.YFRVheightOfHeaderView doubleValue] - [self.YFRVheightOfNavigation doubleValue]];
     
     if(1 == self.YFRVVisibleViews.count){
-        NSString * indexStr = [NSString stringWithFormat:@"%lu", index];
+        NSString * indexStr = [NSString stringWithFormat:@"%@", [NSNumber numberWithUnsignedInteger: index]];
         UIView * visibleView = [self.YFRVVisibleViews objectForKey: indexStr];
         
         if (nil != visibleView) { // 说明此位置的视图已被设置,直接返回即可.
@@ -187,7 +194,7 @@ typedef enum{
         [constraintsArray addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat: visualStr options:0 metrics:NSDictionaryOfVariableBindings(widthOfViewContainer) views: NSDictionaryOfVariableBindings(cell,visibleView)]];
         
         [self.YFRVViewContainer addConstraints:constraintsArray];
-        [self.YFRVVisibleViews setObject: cell forKey:[NSString stringWithFormat:@"%lu", index]];
+        [self.YFRVVisibleViews setObject: cell forKey:[NSString stringWithFormat:@"%@", [NSNumber numberWithUnsignedInteger: index]]];
 
         if (YFRVScrollLeft == direction) { // 修正容器视图的bouds值,以正确显示图形.
             CGRect bounds = self.YFRVViewContainer.bounds;
@@ -216,7 +223,9 @@ typedef enum{
     
     [self.YFRVViewContainer addConstraints:constraintsArray];
     
-    [self.YFRVVisibleViews setObject: cell forKey: [NSString stringWithFormat: @"%lu", index]];
+    [self.YFRVVisibleViews setObject: cell forKey: [NSString stringWithFormat: @"%@", [NSNumber numberWithUnsignedInteger: index]]];
+    
+    self.YFRVIndexOfCurrentPage = index;
     
     /* 为视图容器设置合适的bouds值
      * 这一步是必须的.因为容器视图的子视图比容器视图本身略宽,此处如果不将容器视图的边框显式置为0,容器视图会自动调整,以试图完整显示内容,引起contentOffset向右偏移0.5,然后会出现非预期行为.
@@ -262,8 +271,6 @@ typedef enum{
 
 - (void)scrollViewDidScroll:(UIScrollView *) scrollView
 {
-    NSLog(@"%g", scrollView.contentOffset.x);
-    
     if (0 == self.YFRVVisibleViews.count) { // 说明滚动视图还没初始化,直接返回即可.
         return;
     }
@@ -345,8 +352,6 @@ typedef enum{
     }
     
     NSNumber * heightValue = [NSNumber numberWithDouble: height];
-    YFRVAutorelease(heightValue);
-
     return heightValue;
 }
 
@@ -358,9 +363,13 @@ typedef enum{
     }
     
     NSNumber * heightValue = [NSNumber numberWithDouble: height];
-    YFRVAutorelease(heightValue);
-    
     return heightValue;
 }
 
+- (void)setYFRVIndexOfCurrentPage:(NSUInteger)YFRVIndexOfCurrentPage
+{
+    _YFRVIndexOfCurrentPage = YFRVIndexOfCurrentPage;
+    
+    self.YFRVHeaderView.selectedSegmentIndex = YFRVIndexOfCurrentPage;
+}
 @end

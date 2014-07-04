@@ -32,9 +32,10 @@
     YFRotateViewController * roteteViewController = [[YFRotateViewController alloc] init];
     
     UINavigationController * navController = [[UINavigationController alloc] initWithRootViewController: roteteViewController];
-    
+    YFRVRelease(roteteViewController);
     
     self.window.rootViewController = navController;
+    YFRVRelease(navController);
     
     [self.window makeKeyAndVisible];
     
