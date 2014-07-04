@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 
 // !!!:帮连长解决掉那个BUG.
+// !!!: 有一个BUG! 循环往复,会出空白!建议:预加载相邻的两个,以提供最佳的用户体验.
 
 /* 使工程同时支持 ARC 和 MRC 编译. */
 #if ! __has_feature(objc_arc)

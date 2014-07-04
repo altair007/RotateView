@@ -31,6 +31,7 @@
 		C2B0F14F1961A5F100E872A6 /* RotateTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C2B0F14E1961A5F100E872A6 /* RotateTests.m */; };
 		C2B0F15A1961A83800E872A6 /* YFRotateViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C2B0F1591961A83800E872A6 /* YFRotateViewController.m */; };
 		C2B0F15D1961A96400E872A6 /* YFRotateView.m in Sources */ = {isa = PBXBuildFile; fileRef = C2B0F15C1961A96400E872A6 /* YFRotateView.m */; };
+		C2EBD9021966C5C10095A550 /* YFRotateHeaderView.m in Sources */ = {isa = PBXBuildFile; fileRef = C2EBD9011966C5C10095A550 /* YFRotateHeaderView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -74,6 +75,8 @@
 		C2B0F1591961A83800E872A6 /* YFRotateViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YFRotateViewController.m; sourceTree = "<group>"; };
 		C2B0F15B1961A96400E872A6 /* YFRotateView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YFRotateView.h; sourceTree = "<group>"; };
 		C2B0F15C1961A96400E872A6 /* YFRotateView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YFRotateView.m; sourceTree = "<group>"; };
+		C2EBD9001966C5C10095A550 /* YFRotateHeaderView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YFRotateHeaderView.h; sourceTree = "<group>"; };
+		C2EBD9011966C5C10095A550 /* YFRotateHeaderView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YFRotateHeaderView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -151,6 +154,8 @@
 				C2B0F1591961A83800E872A6 /* YFRotateViewController.m */,
 				C2B0F15B1961A96400E872A6 /* YFRotateView.h */,
 				C2B0F15C1961A96400E872A6 /* YFRotateView.m */,
+				C2EBD9001966C5C10095A550 /* YFRotateHeaderView.h */,
+				C2EBD9011966C5C10095A550 /* YFRotateHeaderView.m */,
 			);
 			path = Rotate;
 			sourceTree = "<group>";
@@ -294,6 +299,7 @@
 				C2B0F1361961A5F100E872A6 /* main.m in Sources */,
 				C2B0F15D1961A96400E872A6 /* YFRotateView.m in Sources */,
 				C2B0F13A1961A5F100E872A6 /* YFAppDelegate.m in Sources */,
+				C2EBD9021966C5C10095A550 /* YFRotateHeaderView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
