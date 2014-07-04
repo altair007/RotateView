@@ -145,7 +145,6 @@ typedef enum{
         return;
     }
     
-    
     if (nil == self.YFRVVisibleViews) { // 初始化 visibleViews 属性.
         self.YFRVVisibleViews = [NSMutableDictionary dictionaryWithCapacity: 42];
     }
