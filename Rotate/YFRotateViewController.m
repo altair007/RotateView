@@ -61,7 +61,7 @@
 #pragma mark - YFRotateViewDataSource 协议方法
 - (NSInteger)numberOfCellsInRotateView:(YFRotateView *)rotateView
 {
-    return 9;
+    return 3;
 }
 
 - (UIView *)rotateView:(YFRotateView *)rotateView cellForColAtIndex:(NSUInteger) index
@@ -77,7 +77,7 @@
 
 - (NSUInteger) indexForSetupCellInRotateView:(YFRotateView *) rotateView
 {
-    return 0;
+    return 1;
 }
 
 - (NSString *)rotateView: (YFRotateView *) rotateView titleForCellAtIndex:(NSUInteger) index
