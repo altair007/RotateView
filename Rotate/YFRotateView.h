@@ -31,7 +31,6 @@
 
 @class YFRotateView;
 
-// ???:如何前向声明 协议! tableView好像做到了@
 /**
  *  轮转视图布局协议.
  */
@@ -100,6 +99,8 @@
 @end
 
 // !!!: 或许应该增加两个代理方法,来指明,在最左边和最右边,再拖动,应该做什么!
+// !!!: 增加一个属性,来指示当前显示的视图.
+// !!!: 支持轮转吧!
 @interface YFRotateView : UIView <UIScrollViewDelegate>
 //@property (retain, nonatomic) UIView * initView; //!< 相册初始化完成时,显示在相册上的视图.
 @property (assign, nonatomic) id<YFRotateViewDelegate> delegate; //!< 代理.

@@ -29,7 +29,7 @@
     YFRotateView * rotateView = [[YFRotateView alloc] init];
     rotateView.delegate = self;
     rotateView.dataSource = self;
-    
+
     self.view = rotateView;
     YFRVRelease(rotateView);
 }
@@ -56,7 +56,7 @@
 #pragma mark - YFRotateViewDataSource 协议方法
 - (NSInteger)numberOfCellsInRotateView:(YFRotateView *)rotateView
 {
-    return 3;
+    return 9;
 }
 
 - (UIView *)rotateView:(YFRotateView *)rotateView cellForColAtIndex:(NSUInteger) index
@@ -64,7 +64,7 @@
     NSString * imageName = [NSString stringWithFormat:@"00%lu.jpg", index+1];
 
     UIImageView * view = [[UIImageView alloc] initWithImage:[UIImage imageNamed: imageName]];
-    view.frame = CGRectMake(0, 0, 320, 568);
+//    view.frame = CGRectMake(0, 0, 320, 568);
     view.backgroundColor = [UIColor blueColor];
     
     return view;

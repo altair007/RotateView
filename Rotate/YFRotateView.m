@@ -54,6 +54,16 @@ typedef enum{
 @end
 
 @implementation YFRotateView
+- (void)dealloc
+{
+    self.YFRVViewContainer = nil;
+    self.YFRVHeaderView = nil;
+    self.YFRVVisibleViews = nil;
+    
+#if ! __has_feature(objc_arc)
+    [super dealloc];
+#endif
+}
 
 - (id)initWithFrame:(CGRect)frame
 {
@@ -90,8 +100,6 @@ typedef enum{
     viewContainer.showsVerticalScrollIndicator = NO;
     viewContainer.showsHorizontalScrollIndicator = NO;
     viewContainer.pagingEnabled = YES;
-    
-    // !!!:临时关闭回弹.
     viewContainer.bounces = NO;
     
     viewContainer.translatesAutoresizingMaskIntoConstraints = NO;
@@ -127,16 +135,6 @@ typedef enum{
 - (void) YFRVShowCellAtIndex: (NSUInteger) index
 {
     if (index >= [self.dataSource numberOfCellsInRotateView:self]) { // 超出给定视图数量
-        if (1 == self.YFRVVisibleViews.count &&
-            index == [[self.YFRVVisibleViews allKeys][0] integerValue]) {
-            // !!!:临时测试: 通过重置bouds 修复最后一张图片的闪图bug.
-            // ???:
-            CGRect bounds = self.YFRVViewContainer.bounds;
-            bounds.origin.x = 0;
-            self.YFRVViewContainer.bounds = bounds;
-            
-        }
-        
         return;
     }
     
@@ -193,7 +191,7 @@ typedef enum{
 
         if (YFRVScrollLeft == direction) { // 修正容器视图的bouds值,以正确显示图形.
             CGRect bounds = self.YFRVViewContainer.bounds;
-            bounds.origin.x = 320;
+            bounds.origin.x = self.YFRVViewContainer.frame.size.width;
             self.YFRVViewContainer.bounds = bounds;
         }
         
@@ -225,6 +223,10 @@ typedef enum{
      */
     CGRect bounds = self.YFRVViewContainer.bounds;
     bounds.origin.x = 0;
+    if([self.dataSource numberOfCellsInRotateView: self] ==
+     [[self.YFRVVisibleViews allKeys][0]integerValue]+1) { // 当视图是最后一个视图时,需特殊处理.
+        bounds.origin.x = 0.5;
+    }
     self.YFRVViewContainer.bounds = bounds;
 }
 
@@ -246,29 +248,31 @@ typedef enum{
     }
     
     if ([self.dataSource numberOfCellsInRotateView: self] == [self.YFRVVisibleViews.allKeys[0] integerValue] + 1) { // 说明正在显示最右端视图.
+        
+        /* 临时关闭pagingEnbaled属性,否则单击最后一个视图,会闪跳至倒数第二个视图.*/
         CGRect bouds = scrollView.bounds;
         bouds.origin.x = 0.5;
         scrollView.bounds = bouds;
+        scrollView.pagingEnabled = NO;
         return;
     }
     
     scrollView.bounces = YES;
 }
 
-// !!!:有一个BUG: 最后一张图片右移时,有一定几率 闪图.轻击,即跳转到倒数第二张.
-// !!!:应该可以用0.5临界条件修复.
-// !!!: 又或者当检测到视图越界时,重置一下BOUDS.
 - (void)scrollViewDidScroll:(UIScrollView *) scrollView
 {
+    NSLog(@"%g", scrollView.contentOffset.x);
+    
     if (0 == self.YFRVVisibleViews.count) { // 说明滚动视图还没初始化,直接返回即可.
         return;
     }
     
-    if (1 == self.YFRVVisibleViews.count) { // 说明此时需要一个额外的视图.
-        NSLog(@"要添加视图:%g", scrollView.contentOffset.x);
+    /* 当视图是最后一个视图时,会关闭分页功能,所以此处需要显示开启分页功能. */
+    scrollView.pagingEnabled = YES;
+    
+    if (1 == self.YFRVVisibleViews.count) { // 说明此时可能需要一个额外的视图.
         
-        // !!!: 迭代至此!
-        // !!!: 点击图片时,会有一个 scrollView.contentOffset.x == 0 产生.好熟悉的bug.应该是可以通过在某个时机重置容器bouds来修复.
         
         // 获取偏移位置.
         YFRVScrollDirection direction = YFRVScrollLeft;
@@ -348,8 +352,6 @@ typedef enum{
 
 - (NSNumber *) YFRVheightOfNavigation
 {
-    // ???:不同机型下,导航栏高度一样吗?如何动态获取导航栏高度.?
-    
     CGFloat height = 64.0; // 默认64.0.
     if (YES == [self.delegate respondsToSelector: @selector(heightForNavigationInRotateView:)]) { // 优先使用代理设置的页眉高度.
         height = [self.delegate heightForNavigationInRotateView: self];
