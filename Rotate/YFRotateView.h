@@ -79,6 +79,7 @@
 
 @end
 
+// !!!:问题出现这里!自动-64,是我做的!!!
 @interface YFRotateView : UIView <UIScrollViewDelegate, YFRotateHeaderViewDelegate, YFRotateHeaderViewDataSource>
 //@property (retain, nonatomic) UIView * initView; //!< 相册初始化完成时,显示在相册上的视图.
 @property (assign, nonatomic) id<YFRotateViewDelegate> delegate; //!< 代理.

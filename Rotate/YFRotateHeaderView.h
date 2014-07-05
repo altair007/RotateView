@@ -6,15 +6,33 @@
 //  Copyright (c) 2014年 Shadow. All rights reserved.
 //
 
+// ???:当子视图超出父视图范围时,子视图还可以被交互吗?
 #import <UIKit/UIKit.h>
 @class YFRotateHeaderView;
 /**
  *  用于约定页眉的行为和行为.
  */
 @protocol YFRotateHeaderViewDelegate <NSObject>
+@required
+/**
+ *  页眉高度.
+ *
+ *  @param rotateHeaderView 轮转视图页眉.
+ *
+ *  @return 页眉高度.
+ */
+- (CGFloat) hightForRotateHeaderView: (YFRotateHeaderView *) rotateHeaderView;
 
 @optional
-- (CGFloat) heightForCellInRotateHeaderView: (YFRotateHeaderView *) rotateHeaderView;
+/**
+ *  设置某位置页眉单元格的宽度.
+ *
+ *  @param rotateHeaderView 轮转视图页眉对象.
+ *  @param index            位置.
+ *
+ *  @return 此位置页眉单元格的宽度.
+ */
+- (CGFloat) rotateHeaderView: (YFRotateHeaderView *) rotateHeaderView widthForCellAtIndex: (NSUInteger) index;
 
 @end
 
@@ -35,7 +53,7 @@
 
 @end
 
-@interface YFRotateHeaderView : UIView
+@interface YFRotateHeaderView : UIView<UIScrollViewDelegate>
 @property (assign, nonatomic) id<YFRotateHeaderViewDelegate> delegate;//!< 布局代理.
 @property (assign, nonatomic) id<YFRotateHeaderViewDataSource> dataSource; //!<数据源代理.
 @end

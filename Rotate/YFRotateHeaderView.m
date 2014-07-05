@@ -47,56 +47,73 @@
 {
     [super layoutSubviews];
     
-    CGRect rect =  self.YFRHScrollView.bounds;
-    rect.origin.y = 0;
-    self.YFRHScrollView.bounds = rect;
+    //!!!: 支持自定义页眉单元格宽度. 好像有潜在BUG.
+    for (NSUInteger index = 0; index < self.YFRHSegmentedControl.numberOfSegments; index++) {
+        [self.YFRHSegmentedControl setWidth:[self YFRHWidthOfCellAtIndex: index] forSegmentAtIndex: index];
+    }
 }
+
 #pragma mark - 私有方法.
 /**
  * 初始化子视图.
  */
 - (void) YFRHSetupSubviews
 {
+    //!!!: 临时加个空视图,修复BUG.
+//    UIView * emptyView = [[UIView alloc] init];
+//    emptyView.translatesAutoresizingMaskIntoConstraints = NO;
+//    [self addSubview: emptyView];
+    self.backgroundColor = [UIColor blueColor];
+    
+    
+    
     /* 创建视图. */
     UIScrollView * scrollView = [[UIScrollView alloc] init];
     scrollView.translatesAutoresizingMaskIntoConstraints = NO;
     scrollView.showsVerticalScrollIndicator = NO;
     scrollView.showsHorizontalScrollIndicator = NO;
     scrollView.bounces = NO;
-    
-    // ???:此处设置,真的有效吗?
-//    scrollView.contentSize = CGSizeMake([self.dataSource numberOfCellsInRotateHeaderView: self] * [self YFRHWidthOfCell], 0);
-    
-    // !!!:临时加的背景色.
-    scrollView.backgroundColor = [UIColor blackColor];
+    scrollView.backgroundColor = [UIColor blueColor];
+    scrollView.delegate = self;
     
     self.YFRHScrollView = scrollView;
     YFRelease(scrollView);
-    [self addSubview: self.YFRHScrollView];
-    
+//    [self addSubview: self.YFRHScrollView];
+//    [self sendSubviewToBack: self.YFRHScrollView];
     
     UISegmentedControl * segmentedControl = [[UISegmentedControl alloc] initWithItems:[self.dataSource titlesForShowInRotateHeaderView: self]];
-    
-    // !!!: 临时测试.
-    // !!!:迭代至此!可能需要用layer来控制布局.
-    // !!!:建议:先逻辑和整体布局,后样式.
     segmentedControl.translatesAutoresizingMaskIntoConstraints = NO;
-    segmentedControl.tintColor = [UIColor whiteColor];
-    segmentedControl.alpha = 0.5;
-    // !!!:临时加的背景色.
-//    segmentedControl.backgroundColor = [UIColor blueColor];
     
+//    //!!!:根本无效! 支持自定义页眉单元格高度.
+//    for (NSUInteger index = 0; index < self.YFRHSegmentedControl.numberOfSegments; index++) {
+//        [self.YFRHSegmentedControl setWidth:30 forSegmentAtIndex: index];
+//    }
+//
     self.YFRHSegmentedControl = segmentedControl;
     YFRelease(segmentedControl);
-    [self.YFRHScrollView addSubview: self.YFRHSegmentedControl];
+//    [self.YFRHScrollView addSubview: self.YFRHSegmentedControl];
+    
+    // 临时测试.
+    [self addSubview: self.YFRHSegmentedControl];
     
     /*设置视图约束*/
+    NSNumber * heightOfView = [NSNumber numberWithDouble: [self.delegate hightForRotateHeaderView: self]]; //视图高度.
+    
     NSMutableArray * constraints = [NSMutableArray arrayWithCapacity: 42];
-    [constraints addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat: @"|[scrollView]|" options:0 metrics:nil views: NSDictionaryOfVariableBindings(scrollView)]];
-    [constraints addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat: @"V:|[scrollView]|" options:0 metrics:nil views: NSDictionaryOfVariableBindings(scrollView)]];
+//    [constraints addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat: @"|[scrollView]|" options:0 metrics:nil views: NSDictionaryOfVariableBindings(scrollView)]];
+    
+    // !!!: 临时测试.
+//    [constraints addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat: @"V:|[emptyView][scrollView]|" options:0 metrics:NSDictionaryOfVariableBindings(heightOfView) views: NSDictionaryOfVariableBindings(scrollView, emptyView)]];
+    
+//    [constraints addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat: @"V:|[scrollView]|" options:0 metrics:NSDictionaryOfVariableBindings(heightOfView) views: NSDictionaryOfVariableBindings(scrollView)]];
 
     [constraints addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat: @"|[segmentedControl]|" options:0 metrics:nil views: NSDictionaryOfVariableBindings(segmentedControl)]];
-    [constraints addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat: @"V:|[segmentedControl]|" options:0 metrics:nil views: NSDictionaryOfVariableBindings(segmentedControl)]];
+    
+    // !!!:临时测试.
+//    [constraints addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat: @"V:|[segmentedControl]|" options:0 metrics:NSDictionaryOfVariableBindings(heightOfView) views: NSDictionaryOfVariableBindings(segmentedControl)]];
+
+    
+    [constraints addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat: @"V:|[segmentedControl]|" options:0 metrics:NSDictionaryOfVariableBindings(heightOfView) views: NSDictionaryOfVariableBindings(segmentedControl)]];
     
     [self addConstraints: constraints];
 }
@@ -107,13 +124,19 @@
  *
  *  @return 单个单元格宽度.
  */
-- (CGFloat) YFRHWidthOfCell
+- (CGFloat) YFRHWidthOfCellAtIndex: (NSUInteger) index
 {
-    CGFloat width = [UIScreen mainScreen].bounds.size.width / 5;
-    if ([self.delegate respondsToSelector: @selector(heightForCellInRotateHeaderView:)]) {
-        width = [self.delegate heightForCellInRotateHeaderView: self];
+    CGFloat width = self.frame.size.width / 5;
+    if ([self.delegate respondsToSelector: @selector(rotateHeaderView:widthForCellAtIndex:)]) {
+        width = [self.delegate rotateHeaderView: self widthForCellAtIndex: index];
     }
     
     return width;
+}
+
+#pragma mark - UIScrollViewDelegate协议方法.
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+{
+    NSLog(@"%@", NSStringFromCGPoint(scrollView.contentOffset));
 }
 @end

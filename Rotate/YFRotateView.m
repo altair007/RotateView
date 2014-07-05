@@ -22,6 +22,7 @@ typedef enum{
 @interface YFRotateView ()
 #pragma mark - 私有属性.
 
+// ???: 建议把视图容器封装成一个单独的类.
 @property (retain, nonatomic) UIScrollView * YFRVViewContainer; //!< 用于放置视图.
 @property (retain, nonatomic) YFRotateHeaderView * YFRVHeaderView; //!< 页眉用于导航.
 @property (assign, nonatomic) NSUInteger  YFRVIndexOfCurrentPage; //!< 当前页面的位置.
@@ -93,7 +94,6 @@ typedef enum{
 - (void)layoutSubviews
 {
     [super layoutSubviews];
-
     /* 正确布局视图容器上视图的相对位置. */
     CGRect bouds = self.YFRVViewContainer.bounds;
     if (YFRVViewContanierContentInsertTypeMiddle == self.YFRVInsertType ||
@@ -101,12 +101,16 @@ typedef enum{
         bouds.origin.x = self.frame.size.width;
     }
     self.YFRVViewContainer.bounds = bouds;
+    
 }
 
 
 #pragma mark - 私有方法
 - (void) YFRVSetupSubviews;
 {
+    // !!!:临时背景色.
+    self.backgroundColor = [UIColor redColor];
+    
     /* 使用"约束"进行界面布局. */
     // 考虑一种特例: 子类无意中重写了父类私有属性的 设置器或者get方法,此时父类中的点语法,还能正常工作吗?如果不能,请给私有变量统一加前缀!
     NSNumber *  navHeight = self.YFRVheightOfNavigation; //!< 导航栏高度.
@@ -129,6 +133,9 @@ typedef enum{
     viewContainer.pagingEnabled = YES;
     viewContainer.bounces = NO;
     
+    // !!!:临时测试
+    [viewContainer setBackgroundColor: self.YFRVViewContainer];
+    
     viewContainer.translatesAutoresizingMaskIntoConstraints = NO;
     viewContainer.delegate = self;
     self.YFRVViewContainer = viewContainer;
@@ -142,8 +149,13 @@ typedef enum{
     
     [constraintsArray addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat: @"|[viewContainer]|" options:0 metrics:nil views: NSDictionaryOfVariableBindings(viewContainer)]];
     
-    [constraintsArray addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat: @"V:|-navHeight-[headerView(==headerHeight)][viewContainer]|" options:0 metrics: NSDictionaryOfVariableBindings(navHeight, headerHeight) views: NSDictionaryOfVariableBindings(headerView,viewContainer)]];
+    // !!!:猜想:navHeight不是必须的!
+    // !!!:临时测试.
+    [constraintsArray addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat: @"V:|-navHeight-[headerView(==30)][viewContainer]|" options:0 metrics: NSDictionaryOfVariableBindings(navHeight, headerHeight) views: NSDictionaryOfVariableBindings(headerView,viewContainer)]];
+
     
+//    [constraintsArray addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat: @"V:|-navHeight-[headerView(==headerHeight)][viewContainer]|" options:0 metrics: NSDictionaryOfVariableBindings(navHeight, headerHeight) views: NSDictionaryOfVariableBindings(headerView,viewContainer)]];
+
     [self addConstraints: constraintsArray];
     
     /* 设置页面上初始显示的视图. */
@@ -323,10 +335,23 @@ typedef enum{
 }
 
 #pragma mark - YFRotateHeaderViewDelegate协议方法.
+- (CGFloat) rotateHeaderView: (YFRotateHeaderView *) rotateHeaderView widthForCellAtIndex: (NSUInteger) index
+{
+    return 40;
+}
 
+- (CGFloat) hightForRotateHeaderView: (YFRotateHeaderView *) rotateHeaderView
+{
+    return [self.delegate heightForHeaderInRotateView: self];
+}
 #pragma mark - YFRotateHeaderViewDataSource协议方法.
 - (NSArray *) titlesForShowInRotateHeaderView: (YFRotateHeaderView *) rotateHeaderView
 {
-    return @[@"大爱颜风", @"与", @"伦", @"比"];
+    return @[@"头条", @"聚合阅读", @"轻松一刻", @"本地", @"科技"];
+}
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+{
+    NSLog(@"rotateView:%@", NSStringFromCGPoint(scrollView.contentOffset));
 }
 @end

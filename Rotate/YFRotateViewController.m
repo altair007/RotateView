@@ -26,10 +26,14 @@
 
 - (void)loadView
 {
+    // ???: 有一个BGU!  上面会出现竖线.奇怪的竖线.
     YFRotateView * rotateView = [[YFRotateView alloc] init];
     rotateView.delegate = self;
     rotateView.dataSource = self;
-
+//    rotateView.translatesAutoresizingMaskIntoConstraints = NO;
+    self.navigationItem.titleView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 320, 40)];
+    self.navigationItem.titleView.backgroundColor = [UIColor redColor];
+    
     self.view = rotateView;
     YFRelease(rotateView);
 }
@@ -48,11 +52,6 @@
     YFRelease(rightButtonItem);
 }
 
-- (void)viewDidAppear:(BOOL)animated
-{
-    UIView * view = [[self.view YFRVHeaderView] YFRHScrollView];
-    view = [[self.view YFRVHeaderView] YFRHSegmentedControl];
-}
 
 - (void)didReceiveMemoryWarning
 {
@@ -62,6 +61,18 @@
         self.view = nil;
     }
     
+}
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    UIView * view = [[self.view YFRVHeaderView] YFRHScrollView];
+    CGSize size = [view contentSize];
+    CGRect bouds = (CGRect)view.bounds;
+    CGRect visilbe = view.layer.visibleRect;
+//    UIView * superView = view.superview;
+//    CGSize size2 = [view contentSize];
+//    CGRect bouds2 = (CGRect)view.bounds;
+//    CGRect visilbe2 = view.layer.visibleRect;
 }
 
 #pragma mark - YFRotateViewDataSource 协议方法
