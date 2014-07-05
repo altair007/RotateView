@@ -7,29 +7,9 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "YFRotateHeaderView.h"
 
-// !!!:帮连长解决掉那个BUG.
-// !!!: 有一个BUG! 循环往复,会出空白!建议:预加载相邻的两个,以提供最佳的用户体验.
-
-/* 使工程同时支持 ARC 和 MRC 编译. */
-#if ! __has_feature(objc_arc)
-#define YFRVAutorelease(__v) ([__v autorelease]);
-#define YFRVReturnAutoreleased YFRVAutorelease
-
-#define YFRVRetain(__v) ([__v retain]);
-#define YFRVReturnRetained YFRVRetain
-
-#define YFRVRelease(__v) ([__v release]);
-#else
-// -fobjc-arc
-#define YFRVAutorelease(__v)
-#define YFRVReturnAutoreleased(__v) (__v)
-
-#define YFRVRetain(__v)
-#define YFRVReturnRetained(__v) (__v)
-
-#define YFRVRelease(__v)
-#endif
+// !!!:帮连长解决掉那个BUG.即下一步研究上拉加载,下拉刷新.
 
 @class YFRotateView;
 
@@ -87,16 +67,6 @@
  *  @return 用于某个位置的单元格的视图.
  */
 - (UIView *)rotateView:(YFRotateView *)rotateView cellForColAtIndex:(NSUInteger) index;
-
-/**
- *  设置某个位置单元格的标题.
- *
- *  @param rotateView 轮转视图.
- *  @param index      视图位置.
- *
- *  @return 标题.
- */
-- (NSString *)rotateView: (YFRotateView *) rotateView titleForCellAtIndex:(NSUInteger) index;
 @optional
 /**
  *  设置初始显示哪个位置的视图.
@@ -109,7 +79,7 @@
 
 @end
 
-@interface YFRotateView : UIView <UIScrollViewDelegate>
+@interface YFRotateView : UIView <UIScrollViewDelegate, YFRotateHeaderViewDelegate, YFRotateHeaderViewDataSource>
 //@property (retain, nonatomic) UIView * initView; //!< 相册初始化完成时,显示在相册上的视图.
 @property (assign, nonatomic) id<YFRotateViewDelegate> delegate; //!< 代理.
 @property (assign, nonatomic) id<YFRotateViewDataSource> dataSource; //!< 数据源.

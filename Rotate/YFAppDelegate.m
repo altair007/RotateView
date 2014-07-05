@@ -24,7 +24,7 @@
 {
     UIWindow * window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     self.window = window;
-    YFRVRelease(window);
+    YFRelease(window);
     
     // Override point for customization after application launch.
     self.window.backgroundColor = [UIColor whiteColor];
@@ -32,10 +32,10 @@
     YFRotateViewController * roteteViewController = [[YFRotateViewController alloc] init];
     
     UINavigationController * navController = [[UINavigationController alloc] initWithRootViewController: roteteViewController];
-    YFRVRelease(roteteViewController);
+    YFRelease(roteteViewController);
     
     self.window.rootViewController = navController;
-    YFRVRelease(navController);
+    YFRelease(navController);
     
     [self.window makeKeyAndVisible];
     

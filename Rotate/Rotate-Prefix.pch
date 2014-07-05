@@ -14,3 +14,23 @@
     #import <UIKit/UIKit.h>
     #import <Foundation/Foundation.h>
 #endif
+
+/* 使工程同时支持 ARC 和 MRC 编译. */
+#if ! __has_feature(objc_arc)
+#define YFAutorelease(__v) ([__v autorelease]);
+#define YFReturnAutoreleased YFAutorelease
+
+#define YFRetain(__v) ([__v retain]);
+#define YFReturnRetained YFRetain
+
+#define YFRelease(__v) ([__v release]);
+#else
+// -fobjc-arc
+#define YFAutorelease(__v)
+#define YFReturnAutoreleased(__v) (__v)
+
+#define YFRetain(__v)
+#define YFReturnRetained(__v) (__v)
+
+#define YFRelease(__v)
+#endif

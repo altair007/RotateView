@@ -31,7 +31,7 @@
     rotateView.dataSource = self;
 
     self.view = rotateView;
-    YFRVRelease(rotateView);
+    YFRelease(rotateView);
 }
 
 - (void)viewDidLoad
@@ -41,11 +41,17 @@
     self.navigationItem.title = @"魅影传媒";
     UIBarButtonItem * leftButtonItem = [[UIBarButtonItem alloc] initWithTitle: @"目录" style:UIBarButtonItemStylePlain target: nil action: NULL];
     self.navigationItem.leftBarButtonItem = leftButtonItem;
-    YFRVRelease(leftButtonItem);
+    YFRelease(leftButtonItem);
     
     UIBarButtonItem * rightButtonItem = self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle: @"登录" style:UIBarButtonItemStylePlain target:nil action: NULL];
     self.navigationItem.rightBarButtonItem = rightButtonItem;
-    YFRVRelease(rightButtonItem);
+    YFRelease(rightButtonItem);
+}
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    UIView * view = [[self.view YFRVHeaderView] YFRHScrollView];
+    view = [[self.view YFRVHeaderView] YFRHSegmentedControl];
 }
 
 - (void)didReceiveMemoryWarning
@@ -61,7 +67,7 @@
 #pragma mark - YFRotateViewDataSource 协议方法
 - (NSInteger)numberOfCellsInRotateView:(YFRotateView *)rotateView
 {
-    return 3;
+    return 10;
 }
 
 - (UIView *)rotateView:(YFRotateView *)rotateView cellForColAtIndex:(NSUInteger) index
@@ -69,9 +75,8 @@
     NSString * imageName = [NSString stringWithFormat:@"00%@.jpg", [NSNumber numberWithUnsignedInteger:index+1]];
 
     UIImageView * view = [[UIImageView alloc] initWithImage:[UIImage imageNamed: imageName]];
-//    view.frame = CGRectMake(0, 0, 320, 568);
     view.backgroundColor = [UIColor blueColor];
-    YFRVAutorelease(view);
+    YFAutorelease(view);
     return view;
 }
 
