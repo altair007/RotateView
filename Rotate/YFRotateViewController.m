@@ -20,19 +20,18 @@
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         // Custom initialization
+        
+        // 不让控制器自动调整UIScrollview位置.
+        self.automaticallyAdjustsScrollViewInsets = NO;
     }
     return self;
 }
 
 - (void)loadView
 {
-    // ???: 有一个BGU!  上面会出现竖线.奇怪的竖线.
     YFRotateView * rotateView = [[YFRotateView alloc] init];
     rotateView.delegate = self;
     rotateView.dataSource = self;
-//    rotateView.translatesAutoresizingMaskIntoConstraints = NO;
-    self.navigationItem.titleView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 320, 40)];
-    self.navigationItem.titleView.backgroundColor = [UIColor redColor];
     
     self.view = rotateView;
     YFRelease(rotateView);
@@ -42,7 +41,7 @@
 {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    self.navigationItem.title = @"魅影传媒";
+    self.navigationItem.title = @"影子新闻";
     UIBarButtonItem * leftButtonItem = [[UIBarButtonItem alloc] initWithTitle: @"目录" style:UIBarButtonItemStylePlain target: nil action: NULL];
     self.navigationItem.leftBarButtonItem = leftButtonItem;
     YFRelease(leftButtonItem);
@@ -63,17 +62,20 @@
     
 }
 
-- (void)viewDidAppear:(BOOL)animated
-{
-    UIView * view = [[self.view YFRVHeaderView] YFRHScrollView];
-    CGSize size = [view contentSize];
-    CGRect bouds = (CGRect)view.bounds;
-    CGRect visilbe = view.layer.visibleRect;
-//    UIView * superView = view.superview;
-//    CGSize size2 = [view contentSize];
-//    CGRect bouds2 = (CGRect)view.bounds;
-//    CGRect visilbe2 = view.layer.visibleRect;
-}
+// !!!:测试bug专用!
+//- (void)viewDidAppear:(BOOL)animated
+//{
+//    UIScrollView * scrollView = [[self.view YFRVHeaderView] YFRHScrollView];
+//    CGRect frameOfScrollView = scrollView.frame;
+//    CGRect boundsOfScrollView = scrollView.bounds;
+//    CGPoint offsetOfScrollView = scrollView.contentOffset;
+//    CGSize sizeOfScrollView= scrollView.contentSize;
+//    
+//    
+//    UIScrollView * segmentedControl = [[self.view YFRVHeaderView] YFRHSegmentedControl];
+//    CGRect frameOfSegmentedControl = segmentedControl.frame;
+//    CGRect boundsOfSegmentedControl = segmentedControl.bounds;
+//}
 
 #pragma mark - YFRotateViewDataSource 协议方法
 - (NSInteger)numberOfCellsInRotateView:(YFRotateView *)rotateView
@@ -86,7 +88,7 @@
     NSString * imageName = [NSString stringWithFormat:@"00%@.jpg", [NSNumber numberWithUnsignedInteger:index+1]];
 
     UIImageView * view = [[UIImageView alloc] initWithImage:[UIImage imageNamed: imageName]];
-    view.backgroundColor = [UIColor blueColor];
+    view.backgroundColor = [UIColor blackColor];
     YFAutorelease(view);
     return view;
 }

@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "YFRotateHeaderView.h"
 
-// !!!:帮连长解决掉那个BUG.即下一步研究上拉加载,下拉刷新.
+
 
 @class YFRotateView;
 
@@ -66,6 +66,8 @@
  *
  *  @return 用于某个位置的单元格的视图.
  */
+// ???:或许应该用一个变量指明,是否是预加载!预加载的话,就不一定需要请求数据了.
+// ???:应该等视图停止时再加载最新数据,也就是说,要再添个新方法,来向代理指明视图停止移动了!
 - (UIView *)rotateView:(YFRotateView *)rotateView cellForColAtIndex:(NSUInteger) index;
 @optional
 /**
@@ -79,9 +81,7 @@
 
 @end
 
-// !!!:问题出现这里!自动-64,是我做的!!!
 @interface YFRotateView : UIView <UIScrollViewDelegate, YFRotateHeaderViewDelegate, YFRotateHeaderViewDataSource>
-//@property (retain, nonatomic) UIView * initView; //!< 相册初始化完成时,显示在相册上的视图.
 @property (assign, nonatomic) id<YFRotateViewDelegate> delegate; //!< 代理.
 @property (assign, nonatomic) id<YFRotateViewDataSource> dataSource; //!< 数据源.
 

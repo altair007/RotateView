@@ -6,7 +6,6 @@
 //  Copyright (c) 2014年 Shadow. All rights reserved.
 //
 
-// ???:建议:轮转视图,不应该依赖于"self.frame",而应该使用与其值等效的 屏幕 bouds![UIScreen mainScreen].bounds
 /**
  *  视图容器的内容插入类型.
  */
@@ -27,39 +26,14 @@ typedef enum{
 @property (retain, nonatomic) YFRotateHeaderView * YFRVHeaderView; //!< 页眉用于导航.
 @property (assign, nonatomic) NSUInteger  YFRVIndexOfCurrentPage; //!< 当前页面的位置.
 @property (assign, nonatomic) YFRVViewContanierContentInsertType YFRVInsertType; //!< 用于实时记录往容器视图插入视图的方式.
-
-// ???:私有方法,不声明了吧?注释写到实现前,不就行了嘛?!
-#pragma mark - 私有方法.
-/**
- *  获取页眉高度.
- *
- *  @return 页眉高度.
- */
-- (NSNumber *) YFRVheightOfHeaderView;
-
-/**
- *  获取导航栏高度.
- *
- *  @return 导航栏高度.
- */
-- (NSNumber *) YFRVheightOfNavigation;
-
-
-/**
- *  初始化子视图.
- */
-- (void) YFRVSetupSubviews;
-
-/**
- *  显示第几个位置的视图.
- *
- *  @param index 要显示的视图的位置.
- */
-- (void) YFRVShowCellAtIndex: (NSUInteger) index;
-
 @end
 
 @implementation YFRotateView
++ (BOOL)requiresConstraintBasedLayout
+{
+    return YES;
+}
+
 - (void)dealloc
 {
     self.delegate = nil;
@@ -94,6 +68,7 @@ typedef enum{
 - (void)layoutSubviews
 {
     [super layoutSubviews];
+    
     /* 正确布局视图容器上视图的相对位置. */
     CGRect bouds = self.YFRVViewContainer.bounds;
     if (YFRVViewContanierContentInsertTypeMiddle == self.YFRVInsertType ||
@@ -106,13 +81,12 @@ typedef enum{
 
 
 #pragma mark - 私有方法
+/**
+ *  初始化子视图.
+ */
 - (void) YFRVSetupSubviews;
 {
-    // !!!:临时背景色.
-    self.backgroundColor = [UIColor redColor];
-    
     /* 使用"约束"进行界面布局. */
-    // 考虑一种特例: 子类无意中重写了父类私有属性的 设置器或者get方法,此时父类中的点语法,还能正常工作吗?如果不能,请给私有变量统一加前缀!
     NSNumber *  navHeight = self.YFRVheightOfNavigation; //!< 导航栏高度.
     NSNumber * headerHeight = self.YFRVheightOfHeaderView; //!< 页眉高度.
     
@@ -120,6 +94,7 @@ typedef enum{
     YFRotateHeaderView * headerView = [[YFRotateHeaderView alloc] init];
     headerView.dataSource = self;
     headerView.delegate = self;
+    [headerView setTranslatesAutoresizingMaskIntoConstraints: ! [[headerView class] requiresConstraintBasedLayout]];
     headerView.translatesAutoresizingMaskIntoConstraints = NO;
     self.YFRVHeaderView = headerView;
     [self addSubview: self.YFRVHeaderView];
@@ -127,17 +102,13 @@ typedef enum{
     
     // 设置视图容器.
     UIScrollView * viewContainer = [[UIScrollView alloc]init];
-    viewContainer.backgroundColor = [UIColor greenColor];
     viewContainer.showsVerticalScrollIndicator = NO;
     viewContainer.showsHorizontalScrollIndicator = NO;
     viewContainer.pagingEnabled = YES;
     viewContainer.bounces = NO;
-    
-    // !!!:临时测试
-    [viewContainer setBackgroundColor: self.YFRVViewContainer];
-    
     viewContainer.translatesAutoresizingMaskIntoConstraints = NO;
     viewContainer.delegate = self;
+    
     self.YFRVViewContainer = viewContainer;
     YFRelease(viewContainer);
     [self addSubview: self.YFRVViewContainer];
@@ -149,12 +120,7 @@ typedef enum{
     
     [constraintsArray addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat: @"|[viewContainer]|" options:0 metrics:nil views: NSDictionaryOfVariableBindings(viewContainer)]];
     
-    // !!!:猜想:navHeight不是必须的!
-    // !!!:临时测试.
-    [constraintsArray addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat: @"V:|-navHeight-[headerView(==30)][viewContainer]|" options:0 metrics: NSDictionaryOfVariableBindings(navHeight, headerHeight) views: NSDictionaryOfVariableBindings(headerView,viewContainer)]];
-
-    
-//    [constraintsArray addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat: @"V:|-navHeight-[headerView(==headerHeight)][viewContainer]|" options:0 metrics: NSDictionaryOfVariableBindings(navHeight, headerHeight) views: NSDictionaryOfVariableBindings(headerView,viewContainer)]];
+    [constraintsArray addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat: @"V:|-navHeight-[headerView(==headerHeight)][viewContainer]|" options:0 metrics: NSDictionaryOfVariableBindings(navHeight, headerHeight) views: NSDictionaryOfVariableBindings(headerView,viewContainer)]];
 
     [self addConstraints: constraintsArray];
     
@@ -171,6 +137,11 @@ typedef enum{
     [self YFRVShowCellAtIndex: indexOfSetUpCell];
 }
 
+/**
+ *  获取页眉高度.
+ *
+ *  @return 页眉高度.
+ */
 - (NSNumber *)YFRVheightOfHeaderView
 {
     CGFloat height = 30.0; // 默认30.0.
@@ -182,6 +153,11 @@ typedef enum{
     return heightValue;
 }
 
+/**
+ *  获取导航栏高度.
+ *
+ *  @return 导航栏高度.
+ */
 - (NSNumber *) YFRVheightOfNavigation
 {
     CGFloat height = 64.0; // 默认64.0.
@@ -201,10 +177,14 @@ typedef enum{
         return;
     }
     
-    // ???:是暴漏属性,还是代理传值?
-//    self.YFRVHeaderView.selectedSegmentIndex = YFRVIndexOfCurrentPage;
+    self.YFRVHeaderView.selectedIndex = YFRVIndexOfCurrentPage;
 }
 
+/**
+ *  显示第几个位置的视图.
+ *
+ *  @param index 要显示的视图的位置.
+ */
 - (void) YFRVShowCellAtIndex: (NSUInteger) index
 {
     // 更新当前视图.
@@ -334,24 +314,9 @@ typedef enum{
     }
 }
 
-#pragma mark - YFRotateHeaderViewDelegate协议方法.
-- (CGFloat) rotateHeaderView: (YFRotateHeaderView *) rotateHeaderView widthForCellAtIndex: (NSUInteger) index
-{
-    return 40;
-}
-
-- (CGFloat) hightForRotateHeaderView: (YFRotateHeaderView *) rotateHeaderView
-{
-    return [self.delegate heightForHeaderInRotateView: self];
-}
 #pragma mark - YFRotateHeaderViewDataSource协议方法.
 - (NSArray *) titlesForShowInRotateHeaderView: (YFRotateHeaderView *) rotateHeaderView
 {
-    return @[@"头条", @"聚合阅读", @"轻松一刻", @"本地", @"科技"];
-}
-
-- (void)scrollViewDidScroll:(UIScrollView *)scrollView
-{
-    NSLog(@"rotateView:%@", NSStringFromCGPoint(scrollView.contentOffset));
+    return @[@"头条", @"聚合阅读", @"轻松一刻", @"本地", @"科技",@"头条", @"聚合阅读", @"轻松一刻", @"本地", @"科技"];
 }
 @end
